@@ -32,9 +32,9 @@ module.exports = class AmsterdamReactBoilerplateGenerator extends Generator {
 
     this.log(
       chalk.bold.red(`
- X                                       X
- X ${chalk.white('Amsterdam react-boilerplate generator')} X
- X                                       X
+ X ${chalk.white('Gemeente Amsterdam')}
+ X ${chalk.white('react-boilerplate generator')}
+ X
     `)
     );
 
@@ -285,11 +285,24 @@ module.exports = class AmsterdamReactBoilerplateGenerator extends Generator {
     this._updatePackageJson(projectDetails);
   }
 
-  _copyTemplateFiles() {
-    // first, remove the default components, containers and images
-    deleteFolderRecursive(this.destinationPath('app/components'));
-    deleteFolderRecursive(this.destinationPath('app/containers'));
-    deleteFolderRecursive(this.destinationPath('app/images'));
+  _setDependencies() {
+    const dependencies = {
+      'amsterdam-stijl': '^3.0.5',
+      "dyson": "^2.0.3",
+      "dyson-generators": "^0.2.0",
+      "dyson-image": "^0.2.0"
+    };
+
+    this._updatePackageJson({ dependencies });
+  }
+
+  async _copyTemplateFiles() {
+    // first, remove default folders and files to prevent file diff warnings
+    await deleteFolderRecursive(this.destinationPath('app/components'));
+    await deleteFolderRecursive(this.destinationPath('app/containers'));
+    await deleteFolderRecursive(this.destinationPath('app/images'));
+
+    fs.unlinkSync(this.destinationPath('app/global-styles.js'));
 
     this.fs.copyTpl(this.templatePath(), this.destinationPath(), {
       jenkinsJob: this.jenkins.job,

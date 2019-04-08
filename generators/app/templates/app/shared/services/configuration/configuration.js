@@ -1,6 +1,6 @@
 import globalConfig from 'globalConfig'; // eslint-disable-line import/extensions, import/no-unresolved
 
-const domainName = '<% subdomain %>.amsterdam.nl';
+const domainName = '<%= subdomain %>.amsterdam.nl';
 const apiDomainName = 'api.data.amsterdam.nl';
 
 const defaultConfig = {

@@ -175,99 +175,24 @@ module.exports = class AmsterdamReactBoilerplateGenerator extends Generator {
         name: 'apiProxyDir',
         message: 'API proxy dir (acc.data.amsterdam.nl/<dir>):'
       }
-      // {
-      //   name: 'projectId',
-      //   message: 'Project ID:',
-      //   validate: nonEmptyString
-      // }
     ]).then(({ subdomain, apiProxyDir }) => {
       this.environment.apiProxyDir = apiProxyDir;
       this.environment.subdomain = subdomain;
     });
   }
 
-  // async _getFeatures() {
-  //   this.log(
-  //     chalk.cyan(' Project features (deselect the ones you do not need)\n')
-  //   );
-
-  //   const { features } = await this.prompt([
-  //     {
-  //       type: 'checkbox',
-  //       name: 'features',
-  //       message: 'Features:',
-  //       pageSize: 10,
-  //       highlight: false,
-  //       choices: this.features,
-  //     }
-  //   ]);
-
-  //   this.featuresToBeRemoved = this.features.filter(feature => !features.includes(feature));
-  // }
-
   _updatePackageJson(values) {
-    // this.log(this.packageJson);
     this.packageJson = merge(this.packageJson, values);
   }
 
   _writePackageJson() {
-    // remove first to prevent conflict dialog from showing
+    // remove first to prevent diff conflict
     if (fs.existsSync(this.destinationPath('package.json'))) {
       fs.unlinkSync(this.destinationPath('package.json'));
     }
 
     this.fs.writeJSON(this.destinationPath('package.json'), this.packageJson);
   }
-
-  // _removeI18n() {
-
-  // }
-
-  // _removeReduxSaga() {
-
-  // }
-
-  // _removeReselect() {
-
-  // }
-
-  // _removeOfflineAccess() {
-  //   // delete the offline-plugin from the package.json
-  //   // remove the import of the plugin in app.js
-  //   // remove the plugin from the webpack.prod.babel.js.
-
-  //   const appMain = this.destinationPath('src/app.js');
-  //   const appMainContents = this.fs.read(appMain);
-  //   const lineCommented = appMainContents.replace(/(^\s*require\('offline-plugin.+)$/gm, '//$1');
-
-  //   fs.unlinkSync(appMain);
-  //   this.fs.write(appMain, lineCommented);
-
-  //   const wpProdConfig = this.destinationPath('internals/webpack/webpack.prod.babel.js');
-  //   const wpProdConfigContents = this.fs.read(wpProdConfig);
-  //   const packageNameReplaced = wpProdConfigContents.replace('offline-plugin', 'noop-webpack-plugin');
-
-  //   fs.unlinkSync(wpProdConfig);
-  //   this.fs.write(wpProdConfig, packageNameReplaced);
-
-  //   const { devDependencies } = this.packageJson;
-  //   delete devDependencies['offline-plugin'];
-  //   devDependencies['noop-webpack-plugin'] = '1.0.1';
-
-  //   this._updatePackageJson({ devDependencies });
-  // }
-
-  // _removePerformantWebFontLoading() {
-
-  // }
-
-  // _removeImageOptimization() {
-
-  // }
-
-  // _removeSanitizeCSS() {
-
-  // }
 
   _setProjectDetails() {
     const { url } = this.github;
@@ -288,12 +213,26 @@ module.exports = class AmsterdamReactBoilerplateGenerator extends Generator {
   _setDependencies() {
     const dependencies = {
       'amsterdam-stijl': '^3.0.5',
-      "dyson": "^2.0.3",
-      "dyson-generators": "^0.2.0",
-      "dyson-image": "^0.2.0"
+      'dyson': '^2.0.3',
+      'dyson-generators': '^0.2.0',
+      'dyson-image': '^0.2.0',
+      'npm-run-all': '^4.0.5'
     };
 
     this._updatePackageJson({ dependencies });
+  }
+
+  _setScripts() {
+    const scripts = {
+      'dyson:server': 'nodemon --watch test/mock/api --exec babel-node --presets=latest test/mock/api',
+      'dyson:sample': 'nodemon --watch test/mock/sample --exec babel-node --presets=latest ./test/mock/sample',
+      'start:dev': 'npm-run-all -p dyson:server start:proxy-dev',
+      'start:proxy-dev': 'cross-env NODE_ENV=development node server -- --proxyConfig=proxy.conf.dev.js --port=3001',
+      'build:prod': 'cross-env NODE_ENV=production webpack --config internals/webpack/webpack.prod.babel.js --color -p --progress --hide-modules --display-optimization-bailout',
+      'lint:css': "stylelint './app/**/*.js'",
+    };
+
+    this._updatePackageJson({ scripts });
   }
 
   async _copyTemplateFiles() {
@@ -315,34 +254,7 @@ module.exports = class AmsterdamReactBoilerplateGenerator extends Generator {
     });
   }
 
-  // _removeFeatures() {
-  //   const { featuresToBeRemoved } = this;
-
-  //   if (featuresToBeRemoved.includes('i18n')) {
-  //     this._removeI18n();
-  //   }
-  //   if (featuresToBeRemoved.includes('redux-saga')) {
-  //     this._removeReduxSaga();
-  //   }
-  //   if (featuresToBeRemoved.includes('reselect')) {
-  //     this._removeReselect();
-  //   }
-  //   if (featuresToBeRemoved.includes('offline access')) {
-  //     this._removeOfflineAccess();
-  //   }
-  //   if (featuresToBeRemoved.includes('performant web font loading')) {
-  //     this._removePerformantWebFontLoading();
-  //   }
-  //   if (featuresToBeRemoved.includes('image optimization')) {
-  //     this._removeImageOptimization();
-  //   }
-  //   if (featuresToBeRemoved.includes('sanitize.css')) {
-  //     this._removeSanitizeCSS();
-  //   }
-  // }
-
   initializing() {
-    // this.log('\ninitializing\n');
     this.github = {
       username: '',
       repository: '',
@@ -368,19 +280,6 @@ module.exports = class AmsterdamReactBoilerplateGenerator extends Generator {
       apiProxyDir: '',
       subdomain: 'br-wonen'
     };
-
-    // this.featuresToBeRemoved = [];
-
-    // this.features = [
-    //   'i18n',
-    //   'redux-saga',
-    //   'reselect',
-    //   'offline access',
-    //   // 'add to homescreen functionality',
-    //   // 'performant web font loading',
-    //   // 'image optimization',
-    //   // 'sanitize.css'
-    // ];
 
     this.packageJson = {};
 
@@ -427,6 +326,8 @@ module.exports = class AmsterdamReactBoilerplateGenerator extends Generator {
 
   writing() {
     this._setProjectDetails();
+    this._setDependencies();
+    this._setScripts();
   }
 
   end() {

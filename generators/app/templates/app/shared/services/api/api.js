@@ -6,14 +6,16 @@ import { makeSelectAccessToken } from '../../../containers/App/selectors';
 export const generateParams = data =>
   Object.entries(data)
     .filter(pair => pair[1])
-    .map(pair =>
-      Array.isArray(pair[1]) === true
-        ? pair[1]
-            .filter(val => val)
-            .map(val => `${pair[0]}=${val}`)
-            .join('&')
-        : pair.map(encodeURIComponent).join('=')
-    )
+    .map(pair => {
+      if (Array.isArray(pair[1])) {
+        return pair[1]
+          .filter(val => val)
+          .map(val => `${pair[0]}=${val}`)
+          .join('&');
+      }
+
+      return pair.map(encodeURIComponent).join('=');
+    })
     .join('&');
 
 export function* authCall(url, params, authorizationToken) {

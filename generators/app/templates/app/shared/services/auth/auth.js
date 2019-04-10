@@ -1,4 +1,4 @@
-/* global location, history */
+/* eslint-disable no-restricted-globals */
 /**
  * @jest-environment jsdom
  */

@@ -11,19 +11,21 @@
  * the query string, or null if `queryString` is falsy.
  */
 export default function(queryString) {
+  if (!queryString) {
+    return null;
+  }
+
   return queryString
-    ? queryString
-      .substring(1)
-      .split('&')
-      .reduce((params, query) => {
-        const keyValue = query.split('=');
-        const key = keyValue[0];
-        keyValue.shift();
-        const value = keyValue.join('=');
-        return {
-          ...params,
-          [decodeURIComponent(key)]: decodeURIComponent(value)
-        };
-      }, {})
-    : null;
+    .substring(1)
+    .split('&')
+    .reduce((params, query) => {
+      const keyValue = query.split('=');
+      const key = keyValue[0];
+      keyValue.shift();
+      const value = keyValue.join('=');
+      return {
+        ...params,
+        [decodeURIComponent(key)]: decodeURIComponent(value),
+      };
+    });
 }

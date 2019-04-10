@@ -134,7 +134,7 @@ module.exports = class App extends Generator {
       'Updating package.json and webpack configuration',
       'Copying template files',
       this.project.installDependencies && 'Installing dependencies',
-      this.github.autoCommit && 'Pushing initial commit',
+      this.github.autoCommit && 'Running linter and pushing initial commit',
       `Installation of project '${this.project.seoName}' complete`
     ].filter(Boolean);
 
@@ -171,9 +171,9 @@ ${steps
   }
 
   _showSectionTitle(title, caption) {
-    const lines = [chalk.cyan(`\n ${title}`), caption && chalk.reset.italic(` ${caption}\n`)].filter(Boolean);
+    const lines = [chalk.cyan(`\n ${title}`), caption && chalk.reset.italic(` ${caption}`)].filter(Boolean);
 
-    this.log(lines.join('\n'));
+    this.log(lines.join('\n'), '\n');
   }
 
   async _determineSetupState() {
@@ -401,30 +401,30 @@ ${steps
   _setWebpackRules() {
     const configFile = this.destinationPath('internals/webpack/webpack.base.babel.js');
 
-    const sassRule = {
-      test: /\.scss$/,
-      use: ['style-loader', 'css-loader', 'sass-loader']
-    };
+    const sassRule = `
+      {
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+`;
 
-    const externals = {
-      globalConfig: "JSON.stringify(require(path.resolve(process.cwd(),'environment.conf.json')))",
-    };
+    const externals = `
+  externals: {
+    globalConfig: JSON.stringify(
+      // eslint-disable-next-line global-require
+      require(path.resolve(process.cwd(),'environment.conf.json')),
+    ),
+  },
+`;
 
-    const ruleAsString = util.inspect(sassRule);
     const rulesProp = 'rules: [';
-
-    const externalsAsString = util
-      .inspect(externals)
-      .replace(/\\'/g, '"') // replace escaped quotes
-      .replace(/'/g, '') // remove surrounding quotes
-      .replace(/"/g, "'"); // turn double quotes into single quotes
     const endOfFileSequence = '});';
 
     const babelConfig = this.fs.read(configFile);
 
     const cfgExtended = babelConfig
-      .replace(rulesProp, `${rulesProp}\n${ruleAsString},\n`)
-      .replace(endOfFileSequence, `/* eslint-disable global-require */ \n\texternals:\n\t\t${externalsAsString}\n${endOfFileSequence}`);
+      .replace(rulesProp, `${rulesProp}${sassRule}`)
+      .replace(endOfFileSequence, `${externals}${endOfFileSequence}`);
 
     fs.unlinkSync(configFile);
     this.fs.write(configFile, cfgExtended);
@@ -474,8 +474,6 @@ ${steps
     fs.unlinkSync(this.destinationPath('app/global-styles.js'));
     fs.unlinkSync(this.destinationPath('app/index.html'));
     fs.unlinkSync(this.destinationPath('app/app.js'));
-    fs.unlinkSync(this.destinationPath('.prettierrc'));
-    this.fs.write(this.destinationPath('.prettierrc'), JSON.stringify({}));
 
     this.fs.copyTpl(this.templatePath(), this.destinationPath(), {
       jenkinsJob: this.jenkins.job,

@@ -13,17 +13,17 @@
 export default function(queryString) {
   return queryString
     ? queryString
-        .substring(1)
-        .split('&')
-        .reduce((params, query) => {
-          const keyValue = query.split('=');
-          const key = keyValue[0];
-          keyValue.shift();
-          const value = keyValue.join('=');
-          return {
-            ...params,
-            [decodeURIComponent(key)]: decodeURIComponent(value)
-          };
-        }, {})
+      .substring(1)
+      .split('&')
+      .reduce((params, query) => {
+        const keyValue = query.split('=');
+        const key = keyValue[0];
+        keyValue.shift();
+        const value = keyValue.join('=');
+        return {
+          ...params,
+          [decodeURIComponent(key)]: decodeURIComponent(value)
+        };
+      }, {})
     : null;
 }

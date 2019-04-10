@@ -30,16 +30,16 @@ const MainMenu = () => (
 );
 
 MainMenu.propTypes = {
-  isAuthenticated: PropTypes.bool
+  isAuthenticated: PropTypes.bool,
 };
 
 export const mapStateToProps = createStructuredSelector({
-  isAuthenticated: makeSelectIsAuthenticated()
+  isAuthenticated: makeSelectIsAuthenticated(),
 });
 
 const withConnect = connect(
   mapStateToProps,
-  null
+  null,
 );
 
 export default compose(withConnect)(MainMenu);

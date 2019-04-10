@@ -53,7 +53,7 @@ describe('App saga', () => {
     it('should success', () => {
       getOauthDomain.mockImplementation(() => '');
       const gen = callLogout();
-      const value = gen.next().value;
+      const { value } = gen.next();
       expect(value).toEqual(put(push('/'))); // eslint-disable-line redux-saga/yield-effects
       expect(logout).toHaveBeenCalledWith();
     });
@@ -80,26 +80,26 @@ describe('App saga', () => {
     const payload = {
       accessToken: 'akjgrff',
       userName: 'foo@bar.com',
-      userScopes: ['SIG/ALL']
+      userScopes: ['SIG/ALL'],
     };
 
     it('should success', () => {
       const mockCredentials = {
         accessToken: 'akjgrff',
         userName: 'foo@bar.com',
-        userScopes: ['SIG/ALL']
+        userScopes: ['SIG/ALL'],
       };
       const gen = callAuthorize({ payload });
       expect(gen.next().value).toEqual(
         authCall(
           'https://acc.api.data.amsterdam.nl/signals/auth/me',
           null,
-          'akjgrff'
+          'akjgrff',
         )
       ); // eslint-disable-line redux-saga/yield-effects
       expect(
         gen.next({
-          groups: ['SIG/ALL']
+          groups: ['SIG/ALL'],
         }).value
       ).toEqual(put(authorizeUser(mockCredentials))); // eslint-disable-line redux-saga/yield-effects
     });
@@ -108,19 +108,19 @@ describe('App saga', () => {
       const mockCredentials = {
         accessToken: 'akjgrff',
         userName: 'foo@bar.com',
-        userScopes: ['SIG/ALL']
+        userScopes: ['SIG/ALL'],
       };
       const gen = callAuthorize({ payload });
       expect(gen.next().value).toEqual(
         authCall(
           'https://acc.api.data.amsterdam.nl/signals/auth/me',
           null,
-          'akjgrff'
+          'akjgrff',
         )
       ); // eslint-disable-line redux-saga/yield-effects
       expect(
         gen.next({
-          groups: ['SIG/ALL']
+          groups: ['SIG/ALL'],
         }).value
       ).toEqual(put(authorizeUser(mockCredentials))); // eslint-disable-line redux-saga/yield-effects
     });

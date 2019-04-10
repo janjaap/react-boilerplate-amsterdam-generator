@@ -23,14 +23,14 @@ class Map extends React.Component {
         marker: false,
         search: true,
         zoom: DEFAULT_ZOOM_LEVEL,
-        onQueryResult: this.props.onQueryResult
+        onQueryResult: this.props.onQueryResult,
       };
 
       if (props.location.geometrie) {
         options.marker = true;
         options.center = {
           longitude: props.location.geometrie.coordinates[1],
-          latitude: props.location.geometrie.coordinates[0]
+          latitude: props.location.geometrie.coordinates[0],
         };
       }
 
@@ -39,7 +39,7 @@ class Map extends React.Component {
     if (!isEqual(props.location, this.props.location)) {
       const input = document.querySelector('#nlmaps-geocoder-control-input');
       if (input && props.location.address) {
-        const address = props.location.address;
+        const { address } = props.location;
         const toevoeging = address.huisnummer_toevoeging
           ? `-${address.huisnummer_toevoeging}`
           : '';
@@ -68,12 +68,12 @@ class Map extends React.Component {
 
 Map.defaultProps = {
   location: {},
-  onQueryResult: () => {}
+  onQueryResult: () => {},
 };
 
 Map.propTypes = {
   location: PropTypes.object,
-  onQueryResult: PropTypes.func
+  onQueryResult: PropTypes.func,
 };
 
 export default Map;

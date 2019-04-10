@@ -41,7 +41,7 @@ export class LocaleToggle extends React.Component {
 
   render() {
     return (
-      <button onClick={() => this.onToggle(this.props.locale)}>
+      <button onClick={() => this.onToggle(this.props.locale)} type="button">
         <span className="linklabel">
           {this.getSwitchToLocaleName(this.props.locale)}
         </span>
@@ -52,12 +52,12 @@ export class LocaleToggle extends React.Component {
 
 LocaleToggle.propTypes = {
   onLocaleToggle: PropTypes.func,
-  locale: PropTypes.string
+  locale: PropTypes.string,
 };
 
 const mapStateToProps = createSelector(
   makeSelectLocale(),
-  locale => ({ locale })
+  locale => ({ locale }),
 );
 
 export function mapDispatchToProps(dispatch) {
@@ -68,5 +68,5 @@ export function mapDispatchToProps(dispatch) {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(LocaleToggle);

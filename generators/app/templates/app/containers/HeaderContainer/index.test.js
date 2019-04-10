@@ -12,14 +12,14 @@ describe('<HeaderContainer />', () => {
   const event = {
     persist: jest.fn(),
     preventDefault: jest.fn(),
-    stopPropagation: jest.fn()
+    stopPropagation: jest.fn(),
   };
 
   beforeEach(() => {
     props = {
       userName: 'user',
       onLogin: jest.fn(),
-      onLogout: jest.fn()
+      onLogout: jest.fn(),
     };
   });
 

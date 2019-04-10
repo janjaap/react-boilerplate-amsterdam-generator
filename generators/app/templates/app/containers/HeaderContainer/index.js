@@ -49,25 +49,25 @@ export class HeaderContainer extends React.Component {
 HeaderContainer.propTypes = {
   userName: PropTypes.string,
   onLogin: PropTypes.func,
-  onLogout: PropTypes.func
+  onLogout: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
-  userName: makeSelectUserName()
+  userName: makeSelectUserName(),
 });
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       onLogin: doLogin,
-      onLogout: doLogout
+      onLogout: doLogout,
     },
-    dispatch
+    dispatch,
   );
 
 const withConnect = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 export default compose(withConnect)(HeaderContainer);

@@ -7,7 +7,7 @@ import { generateParams, authCall, authPostCall } from './api';
 jest.mock('containers/App/selectors', () => {
   function mockedMakeSelectAccessToken() {}
   return {
-    makeSelectAccessToken: () => mockedMakeSelectAccessToken
+    makeSelectAccessToken: () => mockedMakeSelectAccessToken,
   };
 });
 
@@ -21,7 +21,7 @@ describe('api service', () => {
     params = {
       name1: 'value1',
       name2: 'value2',
-      value3: ['foo', 'bar']
+      value3: ['foo', 'bar'],
     };
   });
 
@@ -43,8 +43,8 @@ describe('api service', () => {
         method: 'GET',
         headers: {
           accept: 'application/json',
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       };
       const gen = authCall(url, params);
       expect(gen.next().value).toEqual(select(makeSelectAccessToken())); // eslint-disable-line redux-saga/yield-effects
@@ -56,8 +56,8 @@ describe('api service', () => {
       const options = {
         method: 'GET',
         headers: {
-          accept: 'application/json'
-        }
+          accept: 'application/json',
+        },
       };
       const gen = authCall(url, params);
       expect(gen.next().value).toEqual(select(makeSelectAccessToken())); // eslint-disable-line redux-saga/yield-effects
@@ -70,8 +70,8 @@ describe('api service', () => {
         method: 'GET',
         headers: {
           accept: 'application/json',
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       };
       const gen = authCall(url, undefined);
       expect(gen.next().value).toEqual(select(makeSelectAccessToken())); // eslint-disable-line redux-saga/yield-effects
@@ -84,8 +84,8 @@ describe('api service', () => {
         method: 'GET',
         headers: {
           accept: 'application/json',
-          Authorization: 'Bearer custom-token'
-        }
+          Authorization: 'Bearer custom-token',
+        },
       };
       const gen = authCall(url, params, 'custom-token');
       expect(gen.next(token).value).toEqual(call(request, fullUrl, options)); // eslint-disable-line redux-saga/yield-effects
@@ -99,9 +99,9 @@ describe('api service', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(params)
+        body: JSON.stringify(params),
       };
       const gen = authPostCall(url, params);
       expect(gen.next().value).toEqual(select(makeSelectAccessToken())); // eslint-disable-line redux-saga/yield-effects
@@ -113,9 +113,9 @@ describe('api service', () => {
       const options = {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(params)
+        body: JSON.stringify(params),
       };
       const gen = authPostCall(url, params);
       expect(gen.next().value).toEqual(select(makeSelectAccessToken())); // eslint-disable-line redux-saga/yield-effects

@@ -25,17 +25,17 @@ const config = {
         0.42,
         0.21,
         0.105,
-        0.0525
+        0.0525,
       ],
       bounds: [[-285401.92, 22598.08], [595301.9199999999, 903301.9199999999]],
-      origin: [-285401.92, 22598.08]
+      origin: [-285401.92, 22598.08],
     }
   },
   wgs84: {
     code: 'EPSG:4326',
-    projection: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+    projection: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
   },
-  earthRadius: 6378137 // The radius in meters
+  earthRadius: 6378137, // The radius in meters
 };
 
 /**
@@ -51,11 +51,11 @@ const config = {
 export function wgs84ToRd(wgs84Coordinates) {
   const rdCoordinates = proj4(config.rd.projection, [
     wgs84Coordinates.longitude,
-    wgs84Coordinates.latitude
+    wgs84Coordinates.latitude,
   ]);
   return {
     x: rdCoordinates[0],
-    y: rdCoordinates[1]
+    y: rdCoordinates[1],
   };
 }
 
@@ -73,10 +73,10 @@ export function rdToWgs84(rdCoordinates) {
   const wgs84Coordinates = proj4(
     config.rd.projection,
     config.wgs84.projection,
-    [rdCoordinates.x, rdCoordinates.y]
+    [rdCoordinates.x, rdCoordinates.y],
   );
   return {
     latitude: wgs84Coordinates[1],
-    longitude: wgs84Coordinates[0]
+    longitude: wgs84Coordinates[0],
   };
 }

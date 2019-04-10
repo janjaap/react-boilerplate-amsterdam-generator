@@ -27,6 +27,6 @@ export default function() {
   return btoa(
     Array.from(list) // convert to normal array
       .map(n => String.fromCharCode(n)) // convert each integer to a character
-      .join('')
+      .join(''),
   ); // convert to a string of characters
 }

@@ -18,7 +18,7 @@ export const generateParams = data =>
 
 export function* authCall(url, params, authorizationToken) {
   const headers = {
-    accept: 'application/json'
+    accept: 'application/json',
   };
 
   if (authorizationToken) {
@@ -32,7 +32,7 @@ export function* authCall(url, params, authorizationToken) {
 
   const options = {
     method: 'GET',
-    headers
+    headers,
   };
 
   const fullUrl = `${url}/${params ? `?${generateParams(params)}` : ''}`;
@@ -42,7 +42,7 @@ export function* authCall(url, params, authorizationToken) {
 
 export function* authPostCall(url, params) {
   const headers = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   };
 
   const token = yield select(makeSelectAccessToken());
@@ -53,7 +53,7 @@ export function* authPostCall(url, params) {
   const options = {
     method: 'POST',
     headers,
-    body: JSON.stringify(params)
+    body: JSON.stringify(params),
   };
 
   const fullUrl = `${url}`;

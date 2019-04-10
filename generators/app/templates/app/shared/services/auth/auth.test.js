@@ -62,7 +62,7 @@ describe('The auth service', () => {
     describe('receiving response errors from the auth service', () => {
       it('throws an error', () => {
         const queryString = '?error=invalid_request&error_description=invalid%20request';
-        jsdom.reconfigure({ url: `https://data.amsterdam.nl/${queryString}` });
+        global.jsdom.reconfigure({ url: `https://data.amsterdam.nl/${queryString}` });
         queryObject = {
           error: 'invalid_request',
           error_description: 'invalid request'
@@ -208,7 +208,7 @@ describe('The auth service', () => {
     });
 
     it('Redirects to the auth service', () => {
-      jsdom.reconfigure({ url: 'https://data.amsterdam.nl/the/current/path' });
+      global.jsdom.reconfigure({ url: 'https://data.amsterdam.nl/the/current/path' });
 
       login();
 

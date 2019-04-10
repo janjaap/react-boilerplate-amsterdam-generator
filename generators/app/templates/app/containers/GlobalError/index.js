@@ -16,7 +16,7 @@ export const GlobalError = ({ error, errorMessage, onClose }) => (
     {error ? (
       <div className="global-error">
         {errorMessage}
-        <button className="global-error__close-button" onClick={onClose}>
+        <button type="button" className="global-error__close-button" onClick={onClose}>
           sluit
         </button>
       </div>
@@ -27,18 +27,18 @@ export const GlobalError = ({ error, errorMessage, onClose }) => (
 );
 
 GlobalError.defaultProps = {
-  error: false
+  error: false,
 };
 
 GlobalError.propTypes = {
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
   error: makeSelectError(),
-  errorMessage: makeSelectErrorMessage()
+  errorMessage: makeSelectErrorMessage(),
 });
 
 export const mapDispatchToProps = dispatch =>
@@ -50,7 +50,7 @@ export const mapDispatchToProps = dispatch =>
   );
 const withConnect = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 export default compose(withConnect)(GlobalError);

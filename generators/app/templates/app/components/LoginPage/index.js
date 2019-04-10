@@ -9,6 +9,7 @@ const LoginPage = () => (
     <div className="col-12">
       <p>Om deze pagina te zien dient u ingelogd te zijn.</p>
       <button
+        type="button"
         className="action primary"
         onClick={() => {
           login('datapunt');
@@ -17,6 +18,7 @@ const LoginPage = () => (
         <span className="value">Inloggen</span>
       </button>
       <button
+        type="button"
         className="action primary"
         onClick={() => {
           login('grip');

@@ -7,7 +7,7 @@ import LogoSvg from '../../../node_modules/amsterdam-stijl/dist/images/logos/and
 import LogoPng from '../../../node_modules/amsterdam-stijl/dist/images/logos/andreas.png';
 import LogoPrint from '../../../node_modules/amsterdam-stijl/dist/images/logos/andreas-print.png';
 
-const Header = () => (
+const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
   <div className="header-component has_header_modern no-print">
     <div className="row header-wrapper">
       <div className="col-sm-6 grid-header-logo">
@@ -38,43 +38,43 @@ const Header = () => (
           <ul className="links">
             <li>
               <span>
-                {this.props.isAuthenticated && 'Ingelogd als: '}
-                <b>{this.props.userName}</b>
+                {isAuthenticated && 'Ingelogd als: '}
+                <b>{userName}</b>
               </span>
             </li>
-            {!this.props.isAuthenticated ? (
+            {!isAuthenticated ? (
               <li>
-                <a
-                  href=""
+                <button
+                  type="button"
                   onClick={event =>
-                    this.props.onLoginLogoutButtonClick(event, 'datapunt')
+                    onLoginLogoutButtonClick(event, 'datapunt')
                   }
                 >
                   {'Inloggen'}
-                </a>
+                </button>
               </li>
             ) : (
               ''
             )}
-            {!this.props.isAuthenticated ? (
+            {!isAuthenticated ? (
               <li>
-                <a
-                  href=""
+                <button
+                  type="button"
                   onClick={event =>
-                    this.props.onLoginLogoutButtonClick(event, 'grip')
+                    onLoginLogoutButtonClick(event, 'grip')
                   }
                 >
                   {'Inloggen ADW'}
-                </a>
+                </button>
               </li>
             ) : (
               ''
             )}
-            {this.props.isAuthenticated ? (
+            {isAuthenticated ? (
               <li>
-                <a href="" onClick={this.props.onLoginLogoutButtonClick}>
+                <button type="button" onClick={onLoginLogoutButtonClick}>
                   {'Uitloggen'}
-                </a>
+                </button>
               </li>
             ) : (
               ''
@@ -89,13 +89,13 @@ const Header = () => (
 Header.propTypes = {
   isAuthenticated: PropTypes.bool,
   onLoginLogoutButtonClick: PropTypes.func,
-  userName: PropTypes.string
+  userName: PropTypes.string,
 };
 
 Header.defaultProps = {
   isAuthenticated: false,
   onLoginLogoutButtonClick: undefined,
-  userName: ''
+  userName: '',
 };
 
 export default Header;

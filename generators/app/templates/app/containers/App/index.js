@@ -15,7 +15,7 @@ import GlobalError from 'containers/GlobalError';
 import reducer from './reducer';
 import saga from './saga';
 
-const App = () => (
+export const App = () => (
   <div className="container app-container">
     <GlobalError />
     <div className="container">
@@ -41,5 +41,5 @@ const withSaga = injectSaga({ key: 'global', saga });
 
 export default compose(
   withReducer,
-  withSaga
+  withSaga,
 )(App);

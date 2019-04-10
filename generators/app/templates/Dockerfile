@@ -1,4 +1,3 @@
-
 FROM node:10.10 AS builder
 LABEL maintainer="datapunt@amsterdam.nl"
 

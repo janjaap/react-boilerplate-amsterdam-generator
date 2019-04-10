@@ -5,7 +5,7 @@ describe('The query string parser service', () => {
     expect(queryStringParser('?a=b&one=1&bool=false')).toEqual({
       a: 'b',
       one: '1',
-      bool: 'false'
+      bool: 'false',
     });
   });
 
@@ -13,14 +13,14 @@ describe('The query string parser service', () => {
     expect(queryStringParser('/a=b&one=1&bool=false')).toEqual({
       a: 'b',
       one: '1',
-      bool: 'false'
+      bool: 'false',
     });
   });
 
   it('decodes keys and values', () => {
     expect(queryStringParser('?a=b%20c&one%2Ftwo=12')).toEqual({
       a: 'b c',
-      'one/two': '12'
+      'one/two': '12',
     });
   });
 
@@ -31,7 +31,7 @@ describe('The query string parser service', () => {
         one: '12==',
         two: '',
         three: '=',
-        four: '==44'
+        four: '==44',
       }
     );
   });

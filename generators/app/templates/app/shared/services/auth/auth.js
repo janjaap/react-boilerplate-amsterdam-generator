@@ -1,3 +1,4 @@
+/* global location, history */
 /**
  * @jest-environment jsdom
  */

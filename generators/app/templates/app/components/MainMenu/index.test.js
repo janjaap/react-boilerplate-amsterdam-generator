@@ -3,7 +3,7 @@ import React from 'react';
 // import { browserHistory } from 'react-router-dom';
 import { shallow } from 'enzyme';
 
-import { MainMenu } from './index';
+import MainMenu from './index';
 
 describe('<MainMenu />', () => {
   const createComponent = (isAuthenticated = false) => {

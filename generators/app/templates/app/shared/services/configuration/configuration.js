@@ -6,7 +6,7 @@ const apiDomainName = 'api.data.amsterdam.nl';
 const defaultConfig = {
   API_ROOT: `https://acc.${apiDomainName}/`,
   ROOT: 'http://localhost:3001/',
-  AUTH_ROOT: 'https://acc.api.data.amsterdam.nl/'
+  AUTH_ROOT: 'https://acc.api.data.amsterdam.nl/',
 };
 
 const environmentConfig = () => {
@@ -18,13 +18,13 @@ const environmentConfig = () => {
     environment = {
       API_ROOT: `https://${apiDomainName}/`,
       ROOT: `https://${hostname}/`,
-      AUTH_ROOT: `https://${apiDomainName}/`
+      AUTH_ROOT: `https://${apiDomainName}/`,
     };
   } else if (hostname === `acc.${domainName}`) {
     environment = {
       API_ROOT: `https://acc.${apiDomainName}/`,
       ROOT: `https://${hostname}/`,
-      AUTH_ROOT: `https://acc.${apiDomainName}/`
+      AUTH_ROOT: `https://acc.${apiDomainName}/`,
     };
   } else {
     environment = defaultConfig;
@@ -38,7 +38,7 @@ const CONFIGURATION = {
   ...environmentConfig(),
 
   // the external configuration override form environment.conf.json
-  ...globalConfig
+  ...globalConfig,
 };
 
 // console.log('environment configuration', CONFIGURATION); // eslint-disable-line no-console

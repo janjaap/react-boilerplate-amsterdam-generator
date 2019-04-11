@@ -16,11 +16,10 @@ const ERROR_MESSAGES = {
     'includes a parameter more than once, or is otherwise malformed.',
   unauthorized_client: 'The client is not authorized to request an access token using this method.',
   access_denied: 'The resource owner or authorization server denied the request.',
-  unsupported_response_type:
-    'The authorization server does not support obtaining an access token using ' + 'this method.',
+  unsupported_response_type: 'The authorization server does not support obtaining an access token using this method.',
   invalid_scope: 'The requested scope is invalid, unknown, or malformed.',
   server_error:
-    'The authorization server encountered an unexpected condition that prevented it from ' + 'fulfilling the request.',
+    'The authorization server encountered an unexpected condition that prevented it from fulfilling the request.',
   temporarily_unavailable:
     'The authorization server is currently unable to handle the request due to a ' +
     'temporary overloading or maintenance of the server.',
@@ -84,7 +83,7 @@ function handleError(code, description) {
   // OAuth2 authorization service, to clean up the URL.
   location.assign(`${location.protocol}//${location.host}${location.pathname}`);
 
-  throw new Error('Authorization service responded with error ' + `${code} [${description}] (${ERROR_MESSAGES[code]})`);
+  throw new Error(`Authorization service responded with error ${code} [${description}] (${ERROR_MESSAGES[code]})`);
 }
 
 /**

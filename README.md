@@ -12,7 +12,8 @@ The generator takes care of:
 - cloning (the latest tag of) [`react-boilerplate`](https://github.com/react-boilerplate/react-boilerplate) repository
 - replacing properties and values in `package.json`, setting constants values, preparing `Jenkinsfile` and `Dockerfile`
 - adding necessary dependencies
-- pushing the initial commit to a configurable repository
+- (optionally) installing all dependencies
+- (optionally) pushing the initial commit
 
 ## Installation
 

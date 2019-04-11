@@ -3,9 +3,11 @@ const Generator = require('yeoman-generator');
 const chalk = require('chalk');
 const fs = require('fs');
 const merge = require('deepmerge');
-const exec = require('child_process').execSync;
+const childProces = require('child_process');
 const validators = require('./validators');
 const utils = require('./utils');
+
+const { execSync, spawnSync } = childProces;
 
 const { nonEmptyString, noSpacesString, semverRegex } = validators;
 const { deleteFolderRecursive } = utils;
@@ -58,7 +60,7 @@ module.exports = class App extends Generator {
     const { hash, tag, url } = this.github;
 
     // check out the tag
-    this.spawnCommandSync('git', [
+    const gitClone = spawnSync('git', [
       'clone',
       '--branch',
       tag,
@@ -68,9 +70,13 @@ module.exports = class App extends Generator {
       '.',
     ]);
 
-    this.spawnCommandSync('git', ['checkout', '-b', 'master']);
-    this.spawnCommandSync('git', ['rebase', hash]);
-    this.spawnCommandSync('git', ['remote', 'set-url', 'origin', url]);
+    if (gitClone.status !== 0) {
+      this._showError('Could not clone the base repository', true);
+    }
+
+    spawnSync('git', ['checkout', '-b', 'master']);
+    spawnSync('git', ['rebase', hash]);
+    spawnSync('git', ['remote', 'set-url', 'origin', url]);
 
     // eslint-disable-next-line global-require
     this.packageJson = require(this.destinationPath('package.json'));
@@ -93,6 +99,19 @@ module.exports = class App extends Generator {
     this._showInstallSteps(2);
 
     this._copyTemplateFiles();
+  }
+
+  _showError(error, bail = false) {
+    this._showBrand();
+    this.log(
+      chalk.bold.red(`
+ ${error}
+`),
+    );
+
+    if (bail) {
+      process.exit(1);
+    }
   }
 
   _showIntro() {
@@ -144,7 +163,8 @@ module.exports = class App extends Generator {
 
     const stepLines = steps
       .map((step, index) => {
-        const stepLine = ` ${index + 1}. ${step}`;
+        const complete = index < stepNumber ? '(complete)' : '';
+        const stepLine = ` ${index + 1}. ${step} ${complete}`;
         let color = index === stepNr ? chalk.yellow : chalk.dim.yellow;
 
         // last line will be green
@@ -229,7 +249,7 @@ module.exports = class App extends Generator {
 
     // get the latest tag
     const listTags = 'git ls-remote --tags --quiet git@github.com:react-boilerplate/react-boilerplate.git | tail -5';
-    const output = await exec(listTags)
+    const output = await execSync(listTags)
       .toString()
       .trim();
 
@@ -297,18 +317,18 @@ module.exports = class App extends Generator {
       },
       {
         name: 'language',
-        message: `Language ${chalk.dim.white('(ISO 639-1)')}:`,
+        message: `Language ${chalk.reset.dim.white('(ISO 639-1)')}:`,
         default: this.project.language,
         validate: nonEmptyString,
       },
       {
         name: 'subdomain',
-        message: `Subdomain ${chalk.dim.white('(<subdomain>.amsterdam.nl)')}:`,
+        message: `Subdomain ${chalk.reset.dim.white('(<subdomain>.amsterdam.nl)')}:`,
         validate: nonEmptyString,
       },
       {
         name: 'apiProxyDir',
-        message: `API proxy dir ${chalk.dim.white('(acc.data.amsterdam.nl/<dir>)')}:`,
+        message: `API proxy dir ${chalk.reset.dim.white('(acc.data.amsterdam.nl/<dir>)')}:`,
       },
       {
         name: 'installDependencies',
@@ -476,10 +496,16 @@ module.exports = class App extends Generator {
     await deleteFolderRecursive(this.destinationPath('app/containers'));
     await deleteFolderRecursive(this.destinationPath('app/images'));
 
+    fs.unlinkSync(this.destinationPath('internals/templates/containers/App/tests/selectors.test.js'));
     fs.unlinkSync(this.destinationPath('app/global-styles.js'));
     fs.unlinkSync(this.destinationPath('app/index.html'));
     fs.unlinkSync(this.destinationPath('app/app.js'));
     fs.unlinkSync(this.destinationPath('app/i18n.js'));
+
+    const prettierJson = this.fs.readJSON(this.destinationPath('.prettierrc'));
+    fs.unlinkSync(this.destinationPath('.prettierrc'));
+
+    this.fs.writeJSON(this.destinationPath('.prettierrc'), { ...prettierJson, printWidth: 120 });
 
     this.fs.copyTpl(this.templatePath(), this.destinationPath(), {
       jenkinsJob: this.jenkins.job,
@@ -498,44 +524,55 @@ module.exports = class App extends Generator {
     this._writeFiles(this._finish);
   }
 
-  _initialCommit() {
-    this.spawnCommandSync('git', ['add', '.']);
-    this.spawnCommandSync('git', ['commit', "-m 'First commit'"]);
-    this.spawnCommandSync('git', ['push', '-u', 'origin', 'master']);
+  async _finish() {
+    const installSuccessful = await this._installDeps();
+    let commitSuccessful = true;
+
+    if (installSuccessful) {
+      commitSuccessful = await this._autoCommit();
+    }
+
+    if (commitSuccessful) {
+      this._end();
+    }
   }
 
-  _finish() {
-    this._installDeps(() => {
-      this._autoCommit(() => {
-        this._end();
-      });
-    });
-  }
-
-  _installDeps(cb) {
+  _installDeps() {
     if (this.project.installDependencies) {
       this._showBrand();
       this._showInstallSteps(3);
 
-      this.spawnCommand('npm', ['i', '--no-progress', '--no-optional', '--no-audit']).on('close', code => {
-        if (code === 0) {
-          cb();
-        }
-      });
-    } else {
-      cb();
+      const npmInstall = spawnSync('npm', ['i', '--no-progress', '--no-optional', '--no-audit']);
+
+      if (npmInstall.status !== 0) {
+        return this.prompt([
+          {
+            name: 'continue',
+            type: 'confirm',
+            message: 'npm Installation failed. Skip initial commit?',
+            default: 'Press any key',
+          },
+        ]).then(({ confirm }) => confirm);
+      }
     }
+
+    return this.github.autoCommit;
   }
 
-  _autoCommit(cb) {
-    if (this.github.autoCommit) {
-      this._showBrand();
-      this._showInstallSteps(4);
+  _autoCommit() {
+    this._showBrand();
+    this._showInstallSteps(4);
 
-      this._initialCommit();
+    const gitAdd = spawnSync('git', ['add', '.']);
+    const gitCommit = spawnSync('git', ['commit', '--no-verify', "-m 'First commit'"]);
+    const gitPush = spawnSync('git', ['push', '-u', 'origin', 'master']);
+
+    if (gitAdd.status !== 0 || gitCommit.status !== 0 || gitPush.status !== 0) {
+      this._showError('Could not commit. Check your local changes and try again');
+      return false;
     }
 
-    cb();
+    return true;
   }
 
   _end() {

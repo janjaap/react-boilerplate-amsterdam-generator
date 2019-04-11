@@ -49,10 +49,7 @@ const config = {
  * @returns {Object.<string, number>} RD coordinates with keys `x` and `y`.
  */
 export function wgs84ToRd(wgs84Coordinates) {
-  const rdCoordinates = proj4(config.rd.projection, [
-    wgs84Coordinates.longitude,
-    wgs84Coordinates.latitude,
-  ]);
+  const rdCoordinates = proj4(config.rd.projection, [wgs84Coordinates.longitude, wgs84Coordinates.latitude]);
   return {
     x: rdCoordinates[0],
     y: rdCoordinates[1],
@@ -70,11 +67,7 @@ export function wgs84ToRd(wgs84Coordinates) {
  * and `longitude`.
  */
 export function rdToWgs84(rdCoordinates) {
-  const wgs84Coordinates = proj4(
-    config.rd.projection,
-    config.wgs84.projection,
-    [rdCoordinates.x, rdCoordinates.y],
-  );
+  const wgs84Coordinates = proj4(config.rd.projection, config.wgs84.projection, [rdCoordinates.x, rdCoordinates.y]);
   return {
     latitude: wgs84Coordinates[1],
     longitude: wgs84Coordinates[0],

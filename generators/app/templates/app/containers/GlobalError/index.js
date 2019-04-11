@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose, bindActionCreators } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import {
-  makeSelectError,
-  makeSelectErrorMessage,
-} from 'containers/App/selectors';
+import { makeSelectError, makeSelectErrorMessage } from 'containers/App/selectors';
 import { resetGlobalError } from '../App/actions';
 
 import './style.scss';
@@ -16,11 +13,7 @@ export const GlobalError = ({ error, errorMessage, onClose }) => (
     {error ? (
       <div className="global-error">
         {errorMessage}
-        <button
-          type="button"
-          className="global-error__close-button"
-          onClick={onClose}
-        >
+        <button type="button" className="global-error__close-button" onClick={onClose}>
           sluit
         </button>
       </div>

@@ -12,11 +12,7 @@
 
 import { fromJS } from 'immutable';
 
-import {
-  AUTHORIZE_USER,
-  SHOW_GLOBAL_ERROR,
-  RESET_GLOBAL_ERROR,
-} from './constants';
+import { AUTHORIZE_USER, SHOW_GLOBAL_ERROR, RESET_GLOBAL_ERROR } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({

@@ -15,16 +15,8 @@ const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
           <a className="mainlogo" href={CONFIGURATION.ROOT}>
             <span className="logoset">
               <LogoSvg className="screen-logo" alt="Gemeente Amsterdam" />
-              <img
-                src={LogoPng}
-                className="alt-logo"
-                alt="Gemeente Amsterdam"
-              />
-              <img
-                src={LogoPrint}
-                className="print-logo"
-                alt="Gemeente Amsterdam"
-              />
+              <img src={LogoPng} className="alt-logo" alt="Gemeente Amsterdam" />
+              <img src={LogoPrint} className="print-logo" alt="Gemeente Amsterdam" />
             </span>
             <span className="logotexts">
               <span className="logotext red">Gemeente</span>
@@ -44,10 +36,7 @@ const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
             </li>
             {!isAuthenticated ? (
               <li>
-                <button
-                  type="button"
-                  onClick={event => onLoginLogoutButtonClick(event, 'datapunt')}
-                >
+                <button type="button" onClick={event => onLoginLogoutButtonClick(event, 'datapunt')}>
                   {'Inloggen'}
                 </button>
               </li>
@@ -56,10 +45,7 @@ const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
             )}
             {!isAuthenticated ? (
               <li>
-                <button
-                  type="button"
-                  onClick={event => onLoginLogoutButtonClick(event, 'grip')}
-                >
+                <button type="button" onClick={event => onLoginLogoutButtonClick(event, 'grip')}>
                   {'Inloggen ADW'}
                 </button>
               </li>

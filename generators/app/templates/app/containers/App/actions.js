@@ -1,11 +1,4 @@
-import {
-  AUTHENTICATE_USER,
-  AUTHORIZE_USER,
-  SHOW_GLOBAL_ERROR,
-  RESET_GLOBAL_ERROR,
-  LOGIN,
-  LOGOUT,
-} from './constants';
+import { AUTHENTICATE_USER, AUTHORIZE_USER, SHOW_GLOBAL_ERROR, RESET_GLOBAL_ERROR, LOGIN, LOGOUT } from './constants';
 
 export function authenticateUser(credentials) {
   return {

@@ -7,9 +7,7 @@ import MainMenu from './index';
 
 describe('<MainMenu />', () => {
   const createComponent = (isAuthenticated = false) => {
-    const renderedComponent = shallow(
-      <MainMenu isAuthenticated={isAuthenticated} />,
-    );
+    const renderedComponent = shallow(<MainMenu isAuthenticated={isAuthenticated} />);
     return renderedComponent;
   };
 

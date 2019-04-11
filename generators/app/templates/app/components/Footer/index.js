@@ -10,8 +10,7 @@ const Footer = () => (
           <div className="col-12">
             <h3 className="c-footer__heading">Contact</h3>
             <p className="u-mb--1">
-              Heeft u een vraag over de informatie die u aantreft op Mijn
-              Amsterdam?
+              Heeft u een vraag over de informatie die u aantreft op Mijn Amsterdam?
               <br />
               Neem dan contact op met de gemeente.
             </p>

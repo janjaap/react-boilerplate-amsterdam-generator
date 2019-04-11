@@ -14,17 +14,13 @@ const ERROR_MESSAGES = {
   invalid_request:
     'The request is missing a required parameter, includes an invalid parameter value, ' +
     'includes a parameter more than once, or is otherwise malformed.',
-  unauthorized_client:
-    'The client is not authorized to request an access token using this method.',
-  access_denied:
-    'The resource owner or authorization server denied the request.',
+  unauthorized_client: 'The client is not authorized to request an access token using this method.',
+  access_denied: 'The resource owner or authorization server denied the request.',
   unsupported_response_type:
-    'The authorization server does not support obtaining an access token using ' +
-    'this method.',
+    'The authorization server does not support obtaining an access token using ' + 'this method.',
   invalid_scope: 'The requested scope is invalid, unknown, or malformed.',
   server_error:
-    'The authorization server encountered an unexpected condition that prevented it from ' +
-    'fulfilling the request.',
+    'The authorization server encountered an unexpected condition that prevented it from ' + 'fulfilling the request.',
   temporarily_unavailable:
     'The authorization server is currently unable to handle the request due to a ' +
     'temporary overloading or maintenance of the server.',
@@ -55,9 +51,7 @@ const encodedScopes = encodeURIComponent(scopes.join(' '));
 // The URI we need to redirect to for communication with the OAuth2
 // authorization service
 export const AUTH_PATH = domain =>
-  `oauth2/authorize?idp_id=${getDomain(
-    domain,
-  )}&response_type=token&client_id=sia&scope=${encodedScopes}`;
+  `oauth2/authorize?idp_id=${getDomain(domain)}&response_type=token&client_id=sia&scope=${encodedScopes}`;
 
 // The keys of values we need to store in the session storage
 //
@@ -90,10 +84,7 @@ function handleError(code, description) {
   // OAuth2 authorization service, to clean up the URL.
   location.assign(`${location.protocol}//${location.host}${location.pathname}`);
 
-  throw new Error(
-    'Authorization service responded with error ' +
-      `${code} [${description}] (${ERROR_MESSAGES[code]})`,
-  );
+  throw new Error('Authorization service responded with error ' + `${code} [${description}] (${ERROR_MESSAGES[code]})`);
 }
 
 /**
@@ -137,9 +128,7 @@ function getAccessTokenFromParams(params) {
   if (paramsValid && !stateTokenValid) {
     // This is a callback, but the state token does not equal the
     // one we have saved; report to Sentry
-    throw new Error(
-      `Authenticator encountered an invalid state token (${params.state})`,
-    );
+    throw new Error(`Authenticator encountered an invalid state token (${params.state})`);
   }
 
   return stateTokenValid && paramsValid ? params.access_token : null;
@@ -206,13 +195,9 @@ export function login(domain) {
   sessionStorage.setItem(STATE_TOKEN, stateToken);
   sessionStorage.setItem(OAUTH_DOMAIN, domain);
 
-  const redirectUri = encodeURIComponent(
-    `${location.protocol}//${location.host}/manage/incidents`,
-  );
+  const redirectUri = encodeURIComponent(`${location.protocol}//${location.host}/manage/incidents`);
   location.assign(
-    `${CONFIGURATION.AUTH_ROOT}${AUTH_PATH(
-      domain,
-    )}&state=${encodedStateToken}&redirect_uri=${redirectUri}`,
+    `${CONFIGURATION.AUTH_ROOT}${AUTH_PATH(domain)}&state=${encodedStateToken}&redirect_uri=${redirectUri}`,
   );
 }
 

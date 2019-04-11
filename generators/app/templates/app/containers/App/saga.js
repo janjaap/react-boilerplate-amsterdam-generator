@@ -22,12 +22,7 @@ export function* callLogout() {
   try {
     // This forces the remove of the grip cookies.
     if (getOauthDomain() === 'grip') {
-      window
-        .open(
-          'https://auth.grip-on-it.com/v2/logout?tenantId=rjsfm52t',
-          '_blank',
-        )
-        .close();
+      window.open('https://auth.grip-on-it.com/v2/logout?tenantId=rjsfm52t', '_blank').close();
     }
     logout();
     yield put(push('/'));

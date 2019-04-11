@@ -40,12 +40,10 @@ class Map extends React.Component {
       const input = document.querySelector('#nlmaps-geocoder-control-input');
       if (input && props.location.address) {
         const { address } = props.location;
-        const toevoeging = address.huisnummer_toevoeging
-          ? `-${address.huisnummer_toevoeging}`
-          : '';
-        const display = `${address.openbare_ruimte} ${address.huisnummer}${
-          address.huisletter
-        }${toevoeging}, ${address.postcode} ${address.woonplaats}`;
+        const toevoeging = address.huisnummer_toevoeging ? `-${address.huisnummer_toevoeging}` : '';
+        const display = `${address.openbare_ruimte} ${address.huisnummer}${address.huisletter}${toevoeging}, ${
+          address.postcode
+        } ${address.woonplaats}`;
         input.setAttribute('value', display);
       }
     }

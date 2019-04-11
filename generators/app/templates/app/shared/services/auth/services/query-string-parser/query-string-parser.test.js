@@ -25,14 +25,12 @@ describe('The query string parser service', () => {
   });
 
   it('can handle equal-signs in a value', () => {
-    expect(queryStringParser('?a=b=c&one=12==&two=&three==&four===44')).toEqual(
-      {
-        a: 'b=c',
-        one: '12==',
-        two: '',
-        three: '=',
-        four: '==44',
-      },
-    );
+    expect(queryStringParser('?a=b=c&one=12==&two=&three==&four===44')).toEqual({
+      a: 'b=c',
+      one: '12==',
+      two: '',
+      three: '=',
+      four: '==44',
+    });
   });
 });

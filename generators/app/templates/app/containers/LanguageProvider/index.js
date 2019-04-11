@@ -16,12 +16,7 @@ import { makeSelectLocale } from './selectors';
 import { DEFAULT_LOCALE } from '../../i18n';
 
 export const LanguageProvider = ({ locale, messages, children }) => (
-  <IntlProvider
-    locale={locale}
-    key={locale}
-    messages={messages[locale]}
-    defaultLocale={DEFAULT_LOCALE}
-  >
+  <IntlProvider locale={locale} key={locale} messages={messages[locale]} defaultLocale={DEFAULT_LOCALE}>
     {React.Children.only(children)}
   </IntlProvider>
 );

@@ -3,10 +3,7 @@ import { Provider } from 'react-redux';
 import { browserHistory } from 'react-router-dom';
 import { shallow, mount } from 'enzyme';
 
-import ConnectedLocaleToggle, {
-  mapDispatchToProps,
-  LocaleToggle,
-} from './index';
+import ConnectedLocaleToggle, { mapDispatchToProps, LocaleToggle } from './index';
 import { changeLocale } from '../LanguageProvider/actions';
 import LanguageProvider from '../LanguageProvider';
 
@@ -59,9 +56,7 @@ describe('<LocaleToggle />', () => {
       </Provider>,
     );
 
-    expect(
-      renderedComponent.contains(<span className="linklabel">English</span>),
-    ).toBe(true);
+    expect(renderedComponent.contains(<span className="linklabel">English</span>)).toBe(true);
   });
 
   describe('mapDispatchToProps', () => {

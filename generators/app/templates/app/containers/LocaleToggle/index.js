@@ -42,9 +42,7 @@ export class LocaleToggle extends React.Component {
   render() {
     return (
       <button onClick={() => this.onToggle(this.props.locale)} type="button">
-        <span className="linklabel">
-          {this.getSwitchToLocaleName(this.props.locale)}
-        </span>
+        <span className="linklabel">{this.getSwitchToLocaleName(this.props.locale)}</span>
       </button>
     );
   }

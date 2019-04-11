@@ -41,9 +41,7 @@ describe('<HeaderContainer />', () => {
       const renderedComponent = shallow(<HeaderContainer {...props} />);
 
       const domain = 'the-login-domain';
-      expect(
-        renderedComponent.instance().onLoginLogoutButtonClick(event, domain),
-      );
+      expect(renderedComponent.instance().onLoginLogoutButtonClick(event, domain));
       expect(props.onLogin).toHaveBeenCalledWith(domain);
     });
 

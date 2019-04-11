@@ -36,11 +36,6 @@ module.exports = class App extends Generator {
       projectId: '',
     };
 
-    this.environment = {
-      apiProxyDir: '',
-      subdomain: 'br-wonen',
-    };
-
     this.packageJson = {};
 
     this._finish = this._finish.bind(this);
@@ -54,8 +49,6 @@ module.exports = class App extends Generator {
     await this._getProjectDetails();
 
     await this._getJenkinsDetails();
-
-    await this._getEnvironmentDetails();
   }
 
   async configuring() {
@@ -108,14 +101,19 @@ module.exports = class App extends Generator {
 
     this.log(
       chalk.white(`
- This generator will prepare a Datapunt project by doing the following:
- - clone the latest tag of the react-boilerplate repository
- - append Datapunt specific dependencies to the package.json
+ This generator will prepare a (${chalk.cyan('React')}) Datapunt project by doing the following:
+ - clone (the latest tag of) the https://github.com/react-boilerplate/react-boilerplate repository
+ - append Datapunt specific dependencies to package.json
  - copy template files into the project folder and
- - (optionally) push the initial commit and install the dependencies
+ - push the initial commit and install the dependencies (both are optional)
 
- Please note that the project will be installed in the current working directory: ${destRoot}
- The directory needs to be empty so that the base repository can be cloned.
+ If you so choose to not install the dependencies, but do have the initial commit pushed, there
+ will be uncommitted files (package-lock.json) after the push which you will have to commit and
+ push manually.
+
+ The project will be installed in the current working directory:
+ ${destRoot}
+ This directory needs to be empty so that the base repository can be cloned.
  `),
     );
 
@@ -158,7 +156,7 @@ module.exports = class App extends Generator {
       })
       .join('\n');
 
-    this.log(stepLines);
+    this.log(`\n${stepLines}`);
   }
 
   _showBrand() {
@@ -173,10 +171,7 @@ module.exports = class App extends Generator {
   }
 
   _showSectionTitle(title, caption) {
-    const lines = [
-      chalk.cyan(`\n ${title}`),
-      caption && chalk.reset.italic(` ${caption}`),
-    ].filter(Boolean);
+    const lines = [chalk.cyan(`\n ${title}`), caption && chalk.reset.italic(` ${caption}`)].filter(Boolean);
 
     this.log(lines.join('\n'), '\n');
   }
@@ -199,8 +194,7 @@ module.exports = class App extends Generator {
       {
         name: 'useRepo',
         type: 'confirm',
-        message:
-          'The generator can automatically set the correct repository for you.\n  Is there a repo you want to use for the new project?',
+        message: 'Is there an existing repo you want to use for the new project?',
       },
     ]).then(async ({ useRepo }) => {
       if (useRepo) {
@@ -219,8 +213,7 @@ module.exports = class App extends Generator {
           {
             name: 'autoCommit',
             type: 'confirm',
-            message:
-              'The generator can push the initial commit to the repository for you.\n  Do you want the generator to do this?',
+            message: 'Do you want the generator to push the initial commit?',
             default: this.github.autoCommit,
           },
         ]).then(({ username, repository, autoCommit }) => {
@@ -232,16 +225,15 @@ module.exports = class App extends Generator {
       }
     });
 
+    this.log('Getting react-boilerplate tags...');
+
     // get the latest tag
-    const listTags =
-      'git ls-remote --tags --quiet git@github.com:react-boilerplate/react-boilerplate.git | tail -5';
+    const listTags = 'git ls-remote --tags --quiet git@github.com:react-boilerplate/react-boilerplate.git | tail -5';
     const output = await exec(listTags)
       .toString()
       .trim();
 
-    const commitsAndTags = output.match(
-      /^([^\s]{40})\s*refs\/tags\/(.+)\s*$/gim,
-    );
+    const commitsAndTags = output.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/gim);
     const choices = commitsAndTags.reverse().map(line => {
       const [, hash, tag] = line.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/);
 
@@ -255,8 +247,7 @@ module.exports = class App extends Generator {
       {
         name: 'tag',
         type: 'list',
-        message:
-          'Choose the react-boilerplate tag you want to base your project on:',
+        message: 'Choose the react-boilerplate tag you want to base your project on:',
         choices: choices.map(({ tag }) => tag),
       },
     ]).then(({ tag }) => {
@@ -270,18 +261,18 @@ module.exports = class App extends Generator {
     this._showBrand();
     this._showSectionTitle(
       'Project parameters',
-      'Will be used to populate package.json and other template files with the appropriate values',
+      'Used for package.json properties, constants values and template files value replacements',
     );
 
     return this.prompt([
       {
         name: 'name',
-        message: 'Project name (lowercase, no spaces):',
+        message: `Project name ${chalk.reset.dim.white('(lowercase, no spaces)')}:`,
         validate: noSpacesString,
       },
       {
         name: 'seoName',
-        message: 'Project title (used for SEO, document title):',
+        message: `Project title ${chalk.reset.dim.white('(SEO)')}:`,
         validate: nonEmptyString,
       },
       {
@@ -306,19 +297,27 @@ module.exports = class App extends Generator {
       },
       {
         name: 'language',
-        message: 'Language (ISO 639-1):',
+        message: `Language ${chalk.dim.white('(ISO 639-1)')}:`,
         default: this.project.language,
         validate: nonEmptyString,
       },
       {
+        name: 'subdomain',
+        message: `Subdomain ${chalk.dim.white('(<subdomain>.amsterdam.nl)')}:`,
+        validate: nonEmptyString,
+      },
+      {
+        name: 'apiProxyDir',
+        message: `API proxy dir ${chalk.dim.white('(acc.data.amsterdam.nl/<dir>)')}:`,
+      },
+      {
         name: 'installDependencies',
         type: 'confirm',
-        message:
-          "Would you like the generator to run `npm install` after it's done generating the project?",
+        message: 'Run `npm install` after project generation?',
         default: true,
       },
-    ]).then(
-      ({
+    ]).then(answers => {
+      const {
         name,
         seoName,
         license,
@@ -327,25 +326,26 @@ module.exports = class App extends Generator {
         description,
         language,
         installDependencies,
-      }) => {
-        this.project.author = author;
-        this.project.description = description;
-        this.project.installDependencies = installDependencies;
-        this.project.language = language;
-        this.project.license = license;
-        this.project.name = name;
-        this.project.seoName = seoName;
-        this.project.version = version;
-      },
-    );
+        subdomain,
+        apiProxyDir,
+      } = answers;
+
+      this.project.author = author;
+      this.project.description = description;
+      this.project.installDependencies = installDependencies;
+      this.project.language = language;
+      this.project.license = license;
+      this.project.name = name;
+      this.project.seoName = seoName;
+      this.project.version = version;
+      this.project.subdomain = subdomain;
+      this.project.apiProxyDir = apiProxyDir;
+    });
   }
 
   _getJenkinsDetails() {
     this._showBrand();
-    this._showSectionTitle(
-      'Jenkinsfile parameters',
-      'Required for configuring deployment',
-    );
+    this._showSectionTitle('Jenkinsfile parameters', 'Required for configuring deployment');
 
     return this.prompt([
       {
@@ -370,28 +370,6 @@ module.exports = class App extends Generator {
     });
   }
 
-  _getEnvironmentDetails() {
-    this._showBrand();
-    this._showSectionTitle('Environment parameters');
-
-    return this.prompt([
-      {
-        name: 'subdomain',
-        message: 'Subdomain (<subdomain>.amsterdam.nl):',
-        default: `data.${this.project.name}`,
-        validate: nonEmptyString,
-      },
-      {
-        name: 'apiProxyDir',
-        default: this.project.name,
-        message: 'API proxy dir (acc.data.amsterdam.nl/<dir>):',
-      },
-    ]).then(({ subdomain, apiProxyDir }) => {
-      this.environment.apiProxyDir = apiProxyDir;
-      this.environment.subdomain = subdomain;
-    });
-  }
-
   _updatePackageJson(values) {
     this.packageJson = merge(this.packageJson, values);
   }
@@ -402,10 +380,7 @@ module.exports = class App extends Generator {
       fs.unlinkSync(this.destinationPath('package.json'));
     }
 
-    return this.fs.writeJSON(
-      this.destinationPath('package.json'),
-      this.packageJson,
-    );
+    return this.fs.writeJSON(this.destinationPath('package.json'), this.packageJson);
   }
 
   _setProjectDetails() {
@@ -427,9 +402,7 @@ module.exports = class App extends Generator {
   }
 
   _setWebpackRules() {
-    const configFile = this.destinationPath(
-      'internals/webpack/webpack.base.babel.js',
-    );
+    const configFile = this.destinationPath('internals/webpack/webpack.base.babel.js');
 
     /* eslint-disable no-useless-escape */
     const sassRule = `
@@ -514,9 +487,9 @@ module.exports = class App extends Generator {
       jenkinsProjectId: this.jenkins.projectId,
       language: this.project.language,
       projectName: this.project.name,
-      proxyDir: this.environment.apiProxyDir,
+      proxyDir: this.project.apiProxyDir,
       seoProjectName: this.project.seoName,
-      subdomain: this.environment.subdomain,
+      subdomain: this.project.subdomain,
     });
 
     // The following is a hack to get around the fact that the Yeoman generator copies the template files
@@ -544,12 +517,7 @@ module.exports = class App extends Generator {
       this._showBrand();
       this._showInstallSteps(3);
 
-      this.spawnCommand('npm', [
-        'i',
-        '--no-progress',
-        '--no-optional',
-        '--no-audit',
-      ]).on('close', code => {
+      this.spawnCommand('npm', ['i', '--no-progress', '--no-optional', '--no-audit']).on('close', code => {
         if (code === 0) {
           cb();
         }

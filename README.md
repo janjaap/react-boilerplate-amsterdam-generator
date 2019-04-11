@@ -30,14 +30,22 @@ After cloning, `cd` into the folder the repository is cloned in and run:
 npm link
 ```
 
-This will create a global NPM package and you will be able to run the generator from any folder now.
+This will create a global NPM package and you will be able to run the generator from any folder.
 
 ## Running
 
 From the command line, run
 
 ```
+yo arbp
+```
+
+or
+
+```
 yo
 ```
 
-and follow the steps in the terminal.
+and select `Arbp`.
+
+Follow the steps in the terminal to complete the project installation.

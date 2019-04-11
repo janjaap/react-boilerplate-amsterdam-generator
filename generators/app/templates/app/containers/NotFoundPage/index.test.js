@@ -16,10 +16,10 @@ describe('<NotFound />', () => {
         <h1>
           <FormattedMessage
             id="boilerplate.containers.NotFoundPage.header"
-            defaultMessage={'Page not found.'}
+            defaultMessage="Page not found."
           />
-        </h1>
-      )
+        </h1>,
+      ),
     ).toEqual(true);
   });
 });

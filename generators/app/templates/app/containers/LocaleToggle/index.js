@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { changeLocale } from '../LanguageProvider/actions';
 import { makeSelectLocale } from '../LanguageProvider/selectors';
-import { DEFAULT_LOCALE } from '../App/constants';
+import { DEFAULT_LOCALE } from '../../i18n';
 
 export class LocaleToggle extends React.Component {
   // eslint-disable-line react/prefer-stateless-function
@@ -62,7 +62,7 @@ const mapStateToProps = createSelector(
 
 export function mapDispatchToProps(dispatch) {
   return {
-    onLocaleToggle: locale => dispatch(changeLocale(locale))
+    onLocaleToggle: locale => dispatch(changeLocale(locale)),
   };
 }
 

@@ -42,7 +42,7 @@ describe('<HeaderContainer />', () => {
 
       const domain = 'the-login-domain';
       expect(
-        renderedComponent.instance().onLoginLogoutButtonClick(event, domain)
+        renderedComponent.instance().onLoginLogoutButtonClick(event, domain),
       );
       expect(props.onLogin).toHaveBeenCalledWith(domain);
     });

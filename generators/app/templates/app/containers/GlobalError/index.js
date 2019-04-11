@@ -5,7 +5,7 @@ import { compose, bindActionCreators } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import {
   makeSelectError,
-  makeSelectErrorMessage
+  makeSelectErrorMessage,
 } from 'containers/App/selectors';
 import { resetGlobalError } from '../App/actions';
 
@@ -16,7 +16,11 @@ export const GlobalError = ({ error, errorMessage, onClose }) => (
     {error ? (
       <div className="global-error">
         {errorMessage}
-        <button type="button" className="global-error__close-button" onClick={onClose}>
+        <button
+          type="button"
+          className="global-error__close-button"
+          onClick={onClose}
+        >
           sluit
         </button>
       </div>
@@ -44,9 +48,9 @@ const mapStateToProps = createStructuredSelector({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      onClose: resetGlobalError
+      onClose: resetGlobalError,
     },
-    dispatch
+    dispatch,
   );
 const withConnect = connect(
   mapStateToProps,

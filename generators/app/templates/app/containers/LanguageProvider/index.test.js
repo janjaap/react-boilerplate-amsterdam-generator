@@ -14,7 +14,7 @@ const messages = defineMessages({
     id: 'some.id',
     defaultMessage: 'This is some default message',
     en: 'This is some en message',
-  }
+  },
 });
 
 describe('<LanguageProvider />', () => {
@@ -23,7 +23,7 @@ describe('<LanguageProvider />', () => {
     const renderedComponent = shallow(
       <LanguageProvider messages={messages} locale="en">
         {children}
-      </LanguageProvider>
+      </LanguageProvider>,
     );
     expect(renderedComponent.contains(children)).toBe(true);
   });
@@ -42,10 +42,12 @@ describe('<ConnectedLanguageProvider />', () => {
         <ConnectedLanguageProvider messages={translationMessages}>
           <FormattedMessage {...messages.someMessage} />
         </ConnectedLanguageProvider>
-      </Provider>
+      </Provider>,
     );
     expect(
-      renderedComponent.contains(<FormattedMessage {...messages.someMessage} />)
+      renderedComponent.contains(
+        <FormattedMessage {...messages.someMessage} />,
+      ),
     ).toBe(true);
   });
 });

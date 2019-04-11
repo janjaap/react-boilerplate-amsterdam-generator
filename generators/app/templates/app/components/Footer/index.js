@@ -2,7 +2,7 @@ import React from 'react';
 
 import './style.scss';
 
-const Footer = () =>(
+const Footer = () => (
   <div className="footer-wrapper no-print">
     <div className="row bg-darkgrey footer">
       <footer className="container footer-component">

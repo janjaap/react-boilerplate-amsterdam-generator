@@ -27,7 +27,7 @@ const ERROR_MESSAGES = {
     'fulfilling the request.',
   temporarily_unavailable:
     'The authorization server is currently unable to handle the request due to a ' +
-    'temporary overloading or maintenance of the server.'
+    'temporary overloading or maintenance of the server.',
 };
 
 // The parameters the OAuth2 authorization service will return on
@@ -38,7 +38,7 @@ const AUTH_PARAMS = ['access_token', 'token_type', 'expires_in', 'state'];
 // the backend APIs
 const scopes = [
   // Signals
-  'SIG/ALL'
+  'SIG/ALL',
 ];
 
 const domainList = ['datapunt', 'grip'];
@@ -56,7 +56,7 @@ const encodedScopes = encodeURIComponent(scopes.join(' '));
 // authorization service
 export const AUTH_PATH = domain =>
   `oauth2/authorize?idp_id=${getDomain(
-    domain
+    domain,
   )}&response_type=token&client_id=sia&scope=${encodedScopes}`;
 
 // The keys of values we need to store in the session storage
@@ -92,7 +92,7 @@ function handleError(code, description) {
 
   throw new Error(
     'Authorization service responded with error ' +
-      `${code} [${description}] (${ERROR_MESSAGES[code]})`
+      `${code} [${description}] (${ERROR_MESSAGES[code]})`,
   );
 }
 
@@ -138,7 +138,7 @@ function getAccessTokenFromParams(params) {
     // This is a callback, but the state token does not equal the
     // one we have saved; report to Sentry
     throw new Error(
-      `Authenticator encountered an invalid state token (${params.state})`
+      `Authenticator encountered an invalid state token (${params.state})`,
     );
   }
 
@@ -207,12 +207,12 @@ export function login(domain) {
   sessionStorage.setItem(OAUTH_DOMAIN, domain);
 
   const redirectUri = encodeURIComponent(
-    `${location.protocol}//${location.host}/manage/incidents`
+    `${location.protocol}//${location.host}/manage/incidents`,
   );
   location.assign(
     `${CONFIGURATION.AUTH_ROOT}${AUTH_PATH(
-      domain
-    )}&state=${encodedStateToken}&redirect_uri=${redirectUri}`
+      domain,
+    )}&state=${encodedStateToken}&redirect_uri=${redirectUri}`,
   );
 }
 
@@ -292,7 +292,7 @@ export function authenticate() {
     const credentials = {
       userName: getName(),
       userScopes: getScopes(),
-      accessToken: getAccessToken()
+      accessToken: getAccessToken(),
     };
     return credentials;
   }

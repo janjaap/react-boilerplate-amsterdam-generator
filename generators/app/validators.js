@@ -1,13 +1,11 @@
-
 const nonEmptyString = value => {
   const isValid = value.trim().length > 0;
 
   if (isValid) {
     return true;
   }
-  {
-    return 'The value cannot be empty';
-  }
+
+  return 'The value cannot be empty';
 };
 
 const noSpacesString = value => {
@@ -16,25 +14,24 @@ const noSpacesString = value => {
   if (isValid) {
     return true;
   }
-  {
-    return 'The value cannot be empty and should not contain spaces';
-  }
+
+  return 'The value cannot be empty and should not contain spaces';
 };
 
 const semverRegex = value => {
   const isValid = /\bv?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?\b/gi.test(
-    value
+    value,
   );
 
   if (isValid) {
     return true;
-  } else {
-    return 'The value should be a valid semver format';
   }
+
+  return 'The value should be a valid semver format';
 };
 
 module.exports = {
   nonEmptyString,
   noSpacesString,
-  semverRegex
+  semverRegex,
 };

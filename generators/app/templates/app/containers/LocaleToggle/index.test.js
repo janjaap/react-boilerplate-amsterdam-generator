@@ -5,7 +5,7 @@ import { shallow, mount } from 'enzyme';
 
 import ConnectedLocaleToggle, {
   mapDispatchToProps,
-  LocaleToggle
+  LocaleToggle,
 } from './index';
 import { changeLocale } from '../LanguageProvider/actions';
 import LanguageProvider from '../LanguageProvider';
@@ -56,11 +56,11 @@ describe('<LocaleToggle />', () => {
         <LanguageProvider messages={translationMessages}>
           <ConnectedLocaleToggle />
         </LanguageProvider>
-      </Provider>
+      </Provider>,
     );
 
     expect(
-      renderedComponent.contains(<span className="linklabel">English</span>)
+      renderedComponent.contains(<span className="linklabel">English</span>),
     ).toBe(true);
   });
 

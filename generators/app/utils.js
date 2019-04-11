@@ -15,5 +15,5 @@ const deleteFolderRecursive = async path => {
 };
 
 module.exports = {
-  deleteFolderRecursive
+  deleteFolderRecursive,
 };

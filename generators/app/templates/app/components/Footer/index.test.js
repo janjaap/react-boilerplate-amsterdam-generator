@@ -6,9 +6,7 @@ import './style.scss';
 
 describe('<Footer />', () => {
   it('should render correctly', () => {
-    const renderedComponent = shallow(
-      <Footer />
-    );
+    const renderedComponent = shallow(<Footer />);
     expect(renderedComponent).toMatchSnapshot();
   });
 });

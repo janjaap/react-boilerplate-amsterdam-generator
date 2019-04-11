@@ -6,14 +6,14 @@ import {
   makeSelectAccessToken,
   makeSelectLoading,
   makeSelectError,
-  makeSelectLocation
+  makeSelectLocation,
 } from './selectors';
 
 describe('selectGlobal', () => {
   it('should select the global state', () => {
     const globalState = fromJS({});
     const mockedState = fromJS({
-      global: globalState
+      global: globalState,
     });
     expect(selectGlobal(mockedState)).toEqual(globalState);
   });
@@ -25,8 +25,8 @@ describe('makeSelectUserName', () => {
     const username = 'loggedInUser';
     const mockedState = fromJS({
       global: {
-        userName: username
-      }
+        userName: username,
+      },
     });
     expect(userNameSelector(mockedState)).toEqual(username);
   });
@@ -38,8 +38,8 @@ describe('makeSelectAccessToken', () => {
     const accessToken = 'thisistheaccesstoken';
     const mockedState = fromJS({
       global: {
-        accessToken
-      }
+        accessToken,
+      },
     });
     expect(selector(mockedState)).toEqual(accessToken);
   });
@@ -51,8 +51,8 @@ describe('makeSelectLoading', () => {
     const loading = false;
     const mockedState = fromJS({
       global: {
-        loading
-      }
+        loading,
+      },
     });
     expect(loadingSelector(mockedState)).toEqual(loading);
   });
@@ -64,8 +64,8 @@ describe('makeSelectError', () => {
     const error = 404;
     const mockedState = fromJS({
       global: {
-        error
-      }
+        error,
+      },
     });
     expect(errorSelector(mockedState)).toEqual(error);
   });
@@ -75,13 +75,13 @@ describe('makeSelectLocation', () => {
   const locationStateSelector = makeSelectLocation();
   it('should select the location', () => {
     const route = fromJS({
-      location: { pathname: '/foo' }
+      location: { pathname: '/foo' },
     });
     const mockedState = fromJS({
-      route
+      route,
     });
     expect(locationStateSelector(mockedState)).toEqual(
-      route.get('location').toJS()
+      route.get('location').toJS(),
     );
   });
 });

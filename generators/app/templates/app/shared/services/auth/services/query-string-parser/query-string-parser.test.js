@@ -32,7 +32,7 @@ describe('The query string parser service', () => {
         two: '',
         three: '=',
         four: '==44',
-      }
+      },
     );
   });
 });

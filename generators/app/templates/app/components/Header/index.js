@@ -46,9 +46,7 @@ const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
               <li>
                 <button
                   type="button"
-                  onClick={event =>
-                    onLoginLogoutButtonClick(event, 'datapunt')
-                  }
+                  onClick={event => onLoginLogoutButtonClick(event, 'datapunt')}
                 >
                   {'Inloggen'}
                 </button>
@@ -60,9 +58,7 @@ const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
               <li>
                 <button
                   type="button"
-                  onClick={event =>
-                    onLoginLogoutButtonClick(event, 'grip')
-                  }
+                  onClick={event => onLoginLogoutButtonClick(event, 'grip')}
                 >
                   {'Inloggen ADW'}
                 </button>

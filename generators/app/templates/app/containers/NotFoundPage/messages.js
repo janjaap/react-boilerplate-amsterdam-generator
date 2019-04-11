@@ -9,5 +9,5 @@ export default defineMessages({
   header: {
     id: 'boilerplate.containers.NotFoundPage.header',
     defaultMessage: 'Page not found.',
-  }
+  },
 });

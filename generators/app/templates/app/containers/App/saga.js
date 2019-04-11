@@ -25,7 +25,7 @@ export function* callLogout() {
       window
         .open(
           'https://auth.grip-on-it.com/v2/logout?tenantId=rjsfm52t',
-          '_blank'
+          '_blank',
         )
         .close();
     }
@@ -56,6 +56,6 @@ export default function* watchAppSaga() {
   yield all([
     takeLatest(LOGIN, callLogin),
     takeLatest(LOGOUT, callLogout),
-    takeLatest(AUTHENTICATE_USER, callAuthorize)
+    takeLatest(AUTHENTICATE_USER, callAuthorize),
   ]);
 }

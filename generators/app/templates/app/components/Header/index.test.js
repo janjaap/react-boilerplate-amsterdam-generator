@@ -5,9 +5,7 @@ import Header from './index';
 
 describe('<Header />', () => {
   it('should render correctly', () => {
-    const renderedComponent = shallow(
-      <Header />
-    );
+    const renderedComponent = shallow(<Header />);
     expect(renderedComponent).toMatchSnapshot();
   });
 });

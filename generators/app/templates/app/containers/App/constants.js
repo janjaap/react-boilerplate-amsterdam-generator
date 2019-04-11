@@ -8,9 +8,6 @@
  * Follow this format:
  * export const YOUR_ACTION_CONSTANT = '<%= projectName %>/YourContainer/YOUR_ACTION_CONSTANT';
  */
-
-export const DEFAULT_LOCALE = '<% language %>';
-
 export const AUTHENTICATE_USER = '<%= projectName %>/App/AUTHENTICATE_USER';
 export const AUTHORIZE_USER = '<%= projectName %>/App/AUTHORIZE_USER';
 

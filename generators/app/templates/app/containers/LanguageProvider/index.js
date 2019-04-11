@@ -13,7 +13,7 @@ import { createSelector } from 'reselect';
 import { IntlProvider } from 'react-intl';
 
 import { makeSelectLocale } from './selectors';
-import { DEFAULT_LOCALE } from '../App/constants';
+import { DEFAULT_LOCALE } from '../../i18n';
 
 export const LanguageProvider = ({ locale, messages, children }) => (
   <IntlProvider

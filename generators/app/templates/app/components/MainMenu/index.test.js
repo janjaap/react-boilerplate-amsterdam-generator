@@ -7,12 +7,13 @@ import MainMenu from './index';
 
 describe('<MainMenu />', () => {
   const createComponent = (isAuthenticated = false) => {
-    const renderedComponent = shallow(<MainMenu isAuthenticated={isAuthenticated} />);
+    const renderedComponent = shallow(
+      <MainMenu isAuthenticated={isAuthenticated} />,
+    );
     return renderedComponent;
   };
 
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   it('should render correctly', () => {
     const renderedComponent = createComponent();

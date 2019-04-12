@@ -14,7 +14,7 @@ const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
         <h1 className="sitelogo">
           <a className="mainlogo" href={CONFIGURATION.ROOT}>
             <span className="logoset">
-              <LogoSvg className="screen-logo" alt="Gemeente Amsterdam" />
+              <img src={LogoSvg} className="screen-logo" alt="Gemeente Amsterdam" />
               <img src={LogoPng} className="alt-logo" alt="Gemeente Amsterdam" />
               <img src={LogoPrint} className="print-logo" alt="Gemeente Amsterdam" />
             </span>

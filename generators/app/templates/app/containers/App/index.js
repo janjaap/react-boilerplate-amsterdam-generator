@@ -15,6 +15,8 @@ import GlobalError from 'containers/GlobalError';
 import reducer from './reducer';
 import saga from './saga';
 
+import GlobalStyles from '../../global-styles';
+
 export const App = () => (
   <div className="container app-container">
     <GlobalError />
@@ -33,6 +35,8 @@ export const App = () => (
     <div className="container-fluid">
       <Footer />
     </div>
+
+    <GlobalStyles />
   </div>
 );
 

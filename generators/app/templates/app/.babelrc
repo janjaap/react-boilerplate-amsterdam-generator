@@ -1,0 +1,11 @@
+{
+  "plugins": [
+    "styled-components",
+    [
+      "inline-react-svg",
+      {
+        "ignorePattern": ".*marker\\.svg"
+      }
+    ]
+  ]
+}

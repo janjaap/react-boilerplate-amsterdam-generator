@@ -465,6 +465,7 @@ module.exports = class App extends Generator {
     };
 
     const devDependencies = {
+      'babel-plugin-inline-react-svg': '^0.5.4',
       dyson: '^2.0.3',
       'dyson-generators': '^0.2.0',
       'dyson-image': '^0.2.0',

@@ -336,18 +336,25 @@ module.exports = class App extends Generator {
         message: 'Run `npm install` after project generation?',
         default: true,
       },
+      {
+        name: 'truncateReadme',
+        type: 'confirm',
+        message: 'Truncate README.md?',
+        default: true,
+      },
     ]).then(answers => {
       const {
+        apiProxyDir,
+        author,
+        description,
+        installDependencies,
+        language,
+        license,
         name,
         seoName,
-        license,
-        author,
-        version,
-        description,
-        language,
-        installDependencies,
         subdomain,
-        apiProxyDir,
+        truncateReadme,
+        version,
       } = answers;
 
       this.project.author = author;
@@ -360,6 +367,7 @@ module.exports = class App extends Generator {
       this.project.version = version;
       this.project.subdomain = subdomain;
       this.project.apiProxyDir = apiProxyDir;
+      this.project.truncateReadme = truncateReadme;
     });
   }
 
@@ -502,6 +510,14 @@ module.exports = class App extends Generator {
     fs.unlinkSync(this.destinationPath('app/index.html'));
     fs.unlinkSync(this.destinationPath('app/app.js'));
     fs.unlinkSync(this.destinationPath('app/i18n.js'));
+
+    if (this.project.truncateReadme) {
+      fs.unlinkSync(this.destinationPath('README.md'));
+      const readmeContents = `# ${this.project.seoName}
+${this.project.description}
+`;
+      this.fs.write(this.destinationPath('README.md'), readmeContents);
+    }
 
     const prettierJson = this.fs.readJSON(this.destinationPath('.prettierrc'));
     fs.unlinkSync(this.destinationPath('.prettierrc'));

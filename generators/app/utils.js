@@ -1,18 +1,18 @@
 const fs = require('fs');
-const afs = fs.promises;
-/* eslint-disable */
+
 const deleteFolderRecursive = async path => {
   if (fs.existsSync(path)) {
-    for (let entry of await afs.readdir(path)) {
-      const curPath = `${path}/${entry}`;
+    fs.readdirSync(path).forEach(file => {
+      const curPath = `${path}/${file}`;
 
-      if ((await afs.lstat(curPath)).isDirectory()) {
-        await deleteFolderRecursive(curPath);
+      if (fs.lstatSync(curPath).isDirectory()) {
+        deleteFolderRecursive(curPath);
       } else {
-        await afs.unlink(curPath);
+        fs.unlinkSync(curPath);
       }
-    }
-    await afs.rmdir(path);
+    });
+
+    fs.rmdirSync(path);
   }
 };
 

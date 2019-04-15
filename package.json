@@ -2,6 +2,10 @@
   "name": "generator-arbp",
   "version": "0.1.0",
   "description": "Amsterdam React Boilerplate Generator",
+  "engines": {
+    "npm": ">=5",
+    "node": ">=8"
+  },
   "files": [
     "generators"
   ],

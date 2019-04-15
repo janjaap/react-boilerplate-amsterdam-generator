@@ -1,9 +1,8 @@
-FROM node:10.10 AS builder
+FROM node:10.15-stretch AS builder
 LABEL maintainer="datapunt@amsterdam.nl"
 
 ARG BUILD_ENV=prod
 ARG BUILD_NUMBER=0
-WORKDIR /app
 
 # Run updates and cleanup
 RUN apt-get update
@@ -24,12 +23,15 @@ RUN npm --production=false \
        install
 RUN npm cache clean --force
 
+COPY package.json /app/
+WORKDIR /app
+
 # Build
 ENV NODE_ENV=production
 RUN echo "run build" ${BUILD_ENV}
 # RUN npm rebuild node-sass
 RUN npm run build:${BUILD_ENV}
-RUN echo "build ${BUILD_NUMBER} - `date`" > /src/build/version.txt
+RUN echo "build ${BUILD_NUMBER} - `date`" > /app/build/version.txt
 
 # Test
 
@@ -37,7 +39,7 @@ RUN echo "build ${BUILD_NUMBER} - `date`" > /src/build/version.txt
 # Deploy
 FROM nginx:stable-alpine
 ARG BUILD_ENV=prod
-COPY --from=builder /src/build/. /usr/share/nginx/html/
+COPY --from=builder /app/build/. /usr/share/nginx/html/
 
 COPY default.conf /etc/nginx/conf.d/
 

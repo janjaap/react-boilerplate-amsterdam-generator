@@ -32,6 +32,15 @@ module.exports = class App extends Generator {
       installDependencies: true,
     };
 
+    this.pwa = {
+      name: '',
+      shortName: '',
+      description: '',
+      backgroundColor: '#ffffff',
+      themeColor: '#ec0000',
+      useManifest: true,
+    };
+
     this.jenkins = {
       job: '',
       playbook: '',
@@ -51,6 +60,8 @@ module.exports = class App extends Generator {
     await this._getProjectDetails();
 
     await this._getJenkinsDetails();
+
+    await this._getPWADetails();
   }
 
   async configuring() {
@@ -90,6 +101,7 @@ module.exports = class App extends Generator {
     this._setDependencies();
     this._setScripts();
     this._setWebpackRules();
+    this._setPWADetails();
 
     this._writePackageJson();
   }
@@ -398,6 +410,66 @@ module.exports = class App extends Generator {
     });
   }
 
+  _getPWADetails() {
+    this._showBrand();
+    this._showSectionTitle(
+      'PWA parameters',
+      'The input for the parameters below will be used to populate the manifest.json file',
+    );
+
+    return this.prompt([
+      {
+        name: 'useManifest',
+        type: 'confirm',
+        message: 'Do you want to have a manifest.json file generated?',
+        default: true,
+      },
+    ]).then(({ useManifest }) => {
+      if (!useManifest) {
+        this.pwa.useManifest = false;
+      }
+
+      return this.prompt([
+        {
+          name: 'name',
+          message: 'Name:',
+          default: this.project.seoName,
+          validate: nonEmptyString,
+        },
+        {
+          name: 'shortName',
+          message: 'Short name:',
+          default: this.project.name,
+          validate: nonEmptyString,
+        },
+        {
+          name: 'description',
+          message: 'Description:',
+          defualt: this.project.description,
+          validate: nonEmptyString,
+        },
+        {
+          name: 'backgroundColor',
+          message: 'Background color:',
+          default: this.pwa.backgroundColor,
+          validate: nonEmptyString,
+        },
+        {
+          name: 'themeColor',
+          message: 'Theme color:',
+          default: this.pwa.themeColor,
+          validate: nonEmptyString,
+        },
+      ]).then(({ name, shortName, description, backgroundColor, themeColor }) => {
+        this.pwa.name = name;
+        this.pwa.shortName = shortName;
+        this.pwa.description = description;
+        this.pwa.backgroundColor = backgroundColor;
+        this.pwa.themeColor = themeColor;
+      });
+    });
+  }
+
   _updatePackageJson(values) {
     this.packageJson = merge(this.packageJson, values);
   }
@@ -461,6 +533,49 @@ module.exports = class App extends Generator {
 
     fs.unlinkSync(configFile);
     this.fs.write(configFile, cfgExtended);
+  }
+
+  _setPWADetails() {
+    const { useManifest, name, shortName, backgroundColor, themeColor, description } = this.pwa;
+    const configFile = this.destinationPath('internals/webpack/webpack.prod.babel.js');
+    const babelProdContents = this.fs.read(configFile);
+    const rePWAPlugin = /new WebpackPwaManifest\(\{[\s\S]+?(?=\}\),)\}\),/;
+    const multilinePluginRegExp = new RegExp(rePWAPlugin, 'gim');
+    let pluginReplace = '';
+
+    if (useManifest) {
+      const rePWAProp = /^\s*(name|short_name|description|background_color|theme_color):\s*'(.+)',?$/;
+      const [plugin] = babelProdContents.match(multilinePluginRegExp);
+      const lines = plugin.match(new RegExp(rePWAProp, 'gim'));
+      pluginReplace = plugin;
+
+      lines.forEach(line => {
+        const [, prop, value] = line.match(new RegExp(rePWAProp, 'i'));
+        const replaced = line.replace(value, () => {
+          switch (prop) {
+            case 'name':
+              return name;
+            case 'short_name':
+              return shortName;
+            case 'background_color':
+              return backgroundColor;
+            case 'theme_color':
+              return themeColor;
+            case 'description':
+              return description;
+            default:
+              return '';
+          }
+        });
+
+        pluginReplace = pluginReplace.replace(line, replaced);
+      });
+    }
+
+    const babelProdContentsModified = babelProdContents.replace(multilinePluginRegExp, pluginReplace);
+
+    fs.unlinkSync(configFile);
+    this.fs.write(configFile, babelProdContentsModified);
   }
 
   _setDependencies() {

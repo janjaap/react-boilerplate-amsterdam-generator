@@ -9,7 +9,7 @@ const utils = require('./utils');
 
 const { execSync, spawnSync } = childProces;
 
-const { nonEmptyString, noSpacesString, semverRegex } = validators;
+const { nonEmptyString, noSpacesString, semverRegex, languageCode } = validators;
 const { deleteFolderRecursive } = utils;
 
 module.exports = class App extends Generator {
@@ -102,6 +102,7 @@ module.exports = class App extends Generator {
     this._setScripts();
     this._setWebpackRules();
     this._setPWADetails();
+    // this._setLanguageConfig();
 
     this._writePackageJson();
   }
@@ -230,7 +231,7 @@ module.exports = class App extends Generator {
       },
     ]).then(async ({ useRepo }) => {
       if (useRepo) {
-        await this.prompt([
+        return this.prompt([
           {
             name: 'repository',
             message: 'Repository name:',
@@ -255,6 +256,9 @@ module.exports = class App extends Generator {
           this.github.url = `git@github.com:${username}/${repository}.git`;
         });
       }
+
+      this.github.autoCommit = false;
+      return null;
     });
 
     this.log('Getting react-boilerplate tags...');
@@ -331,7 +335,7 @@ module.exports = class App extends Generator {
         name: 'language',
         message: `Language ${chalk.reset.dim.white('(ISO 639-1)')}:`,
         default: this.project.language,
-        validate: nonEmptyString,
+        validate: languageCode,
       },
       {
         name: 'subdomain',
@@ -425,48 +429,47 @@ module.exports = class App extends Generator {
         default: true,
       },
     ]).then(({ useManifest }) => {
-      if (!useManifest) {
-        this.pwa.useManifest = false;
+      if (useManifest) {
+        return this.prompt([
+          {
+            name: 'name',
+            message: 'Name:',
+            default: this.project.seoName,
+            validate: nonEmptyString,
+          },
+          {
+            name: 'shortName',
+            message: 'Short name:',
+            default: this.project.name,
+            validate: nonEmptyString,
+          },
+          {
+            name: 'description',
+            message: 'Description:',
+          },
+          {
+            name: 'backgroundColor',
+            message: 'Background color:',
+            default: this.pwa.backgroundColor,
+            validate: nonEmptyString,
+          },
+          {
+            name: 'themeColor',
+            message: 'Theme color:',
+            default: this.pwa.themeColor,
+            validate: nonEmptyString,
+          },
+        ]).then(({ name, shortName, description, backgroundColor, themeColor }) => {
+          this.pwa.name = name;
+          this.pwa.shortName = shortName;
+          this.pwa.description = description;
+          this.pwa.backgroundColor = backgroundColor;
+          this.pwa.themeColor = themeColor;
+        });
       }
 
-      return this.prompt([
-        {
-          name: 'name',
-          message: 'Name:',
-          default: this.project.seoName,
-          validate: nonEmptyString,
-        },
-        {
-          name: 'shortName',
-          message: 'Short name:',
-          default: this.project.name,
-          validate: nonEmptyString,
-        },
-        {
-          name: 'description',
-          message: 'Description:',
-          defualt: this.project.description,
-          validate: nonEmptyString,
-        },
-        {
-          name: 'backgroundColor',
-          message: 'Background color:',
-          default: this.pwa.backgroundColor,
-          validate: nonEmptyString,
-        },
-        {
-          name: 'themeColor',
-          message: 'Theme color:',
-          default: this.pwa.themeColor,
-          validate: nonEmptyString,
-        },
-      ]).then(({ name, shortName, description, backgroundColor, themeColor }) => {
-        this.pwa.name = name;
-        this.pwa.shortName = shortName;
-        this.pwa.description = description;
-        this.pwa.backgroundColor = backgroundColor;
-        this.pwa.themeColor = themeColor;
-      });
+      this.pwa.useManifest = false;
+      return null;
     });
   }
 
@@ -501,6 +504,9 @@ module.exports = class App extends Generator {
     this._updatePackageJson(projectDetails);
   }
 
+  /**
+   * Applies rules for SCSS parsing and adds env var configuration to the base Webpack configuration file
+   */
   _setWebpackRules() {
     const configFile = this.destinationPath('internals/webpack/webpack.base.babel.js');
 
@@ -517,7 +523,7 @@ module.exports = class App extends Generator {
   externals: {
     globalConfig: JSON.stringify(
       // eslint-disable-next-line global-require
-      require(path.resolve(process.cwd(),'environment.conf.json')),
+      require(path.resolve(process.cwd(), 'environment.conf.json')),
     ),
   },
 `;
@@ -535,6 +541,10 @@ module.exports = class App extends Generator {
     this.fs.write(configFile, cfgExtended);
   }
 
+  /**
+   * Removes the WebpackPwaManifest entry or replaces properties in its declaration in the production
+   * Webpack configuration
+   */
   _setPWADetails() {
     const { useManifest, name, shortName, backgroundColor, themeColor, description } = this.pwa;
     const configFile = this.destinationPath('internals/webpack/webpack.prod.babel.js');
@@ -649,6 +659,8 @@ ${this.project.description}
       seoProjectName: this.project.seoName,
       subdomain: this.project.subdomain,
     });
+
+    this.fs.copy(this.templatePath('.*'), this.destinationPath());
 
     // The following is a hack to get around the fact that the Yeoman generator copies the template files
     // after the generator has finished running. This asynchronous behaviour prevents pushing the initial

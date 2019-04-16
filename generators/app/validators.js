@@ -1,3 +1,5 @@
+const codes = require('iso-lang-codes');
+
 const nonEmptyString = value => {
   const isValid = value.trim().length > 0;
 
@@ -30,8 +32,11 @@ const semverRegex = value => {
   return 'The value should be a valid semver format';
 };
 
+const languageCode = value => codes.validateLanguageCode(value);
+
 module.exports = {
   nonEmptyString,
   noSpacesString,
   semverRegex,
+  languageCode,
 };

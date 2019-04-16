@@ -82,7 +82,7 @@ if (!window.Intl) {
     .then(() =>
       Promise.all([
         import('intl/locale-data/jsonp/en.js'), // eslint-disable-line prettier/prettier
-        import('intl/locale-data/jsonp/<%= language >.js'),
+        import('intl/locale-data/jsonp/<%= language %>.js'),
       ]),
     )
     .then(() => render(translationMessages))

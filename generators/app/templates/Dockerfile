@@ -20,7 +20,6 @@ RUN git config --global url."https://github.com/".insteadOf git@github.com:
 COPY package.json package-lock.json /deploy/
 COPY internals /deploy/internals/
 
-RUN npm cache clean --force
 RUN npm config set registry https://repo.datapunt.amsterdam.nl/repository/npm-group/ && \
     npm --production=false \
         --unsafe-perm \

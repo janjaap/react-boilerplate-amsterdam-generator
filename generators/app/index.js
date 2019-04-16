@@ -4,12 +4,14 @@ const chalk = require('chalk');
 const fs = require('fs');
 const merge = require('deepmerge');
 const childProces = require('child_process');
+const fetch = require('node-fetch');
+
 const validators = require('./validators');
 const utils = require('./utils');
 
 const { execSync, spawnSync } = childProces;
 
-const { nonEmptyString, noSpacesString, semverRegex, languageCode } = validators;
+const { nonEmptyString, noSpacesString, semverRegex, languageCode, subdomain, githubUsername } = validators;
 const { deleteFolderRecursive } = utils;
 
 module.exports = class App extends Generator {
@@ -46,6 +48,9 @@ module.exports = class App extends Generator {
       playbook: '',
       projectId: '',
     };
+
+    // var that is set after entering wrong repo credentials and choosing to re-enter the values
+    this.reEnterGithubCreds = false;
 
     this.packageJson = {};
 
@@ -176,8 +181,8 @@ module.exports = class App extends Generator {
 
     const stepLines = steps
       .map((step, index) => {
-        const complete = index < stepNumber ? '(complete)' : '';
-        const stepLine = ` ${index + 1}. ${step} ${complete}`;
+        const complete = index < stepNumber ? ' 🆗' : '...';
+        const stepLine = ` ${index + 1}. ${step}${complete}`;
         let color = index === stepNr ? chalk.yellow : chalk.dim.yellow;
 
         // last line will be green
@@ -223,51 +228,88 @@ module.exports = class App extends Generator {
       'Credentials for the repository in which the newly created project will be stored',
     );
 
-    await this.prompt([
-      {
-        name: 'useRepo',
-        type: 'confirm',
-        message: 'Is there an existing repo you want to use for the new project?',
-      },
-    ]).then(async ({ useRepo }) => {
-      if (useRepo) {
-        return this.prompt([
-          {
-            name: 'repository',
-            message: 'Repository name:',
-            validate: nonEmptyString,
-          },
-          {
-            name: 'username',
-            message: 'Github user/account name:',
-            default: this.github.username,
-            validate: nonEmptyString,
-          },
-          {
-            name: 'autoCommit',
-            type: 'confirm',
-            message: 'Do you want the generator to push the initial commit?',
-            default: this.github.autoCommit,
-          },
-        ]).then(({ username, repository, autoCommit }) => {
+    let useRepo = true;
+
+    if (!this.reEnterGithubCreds) {
+      ({ useRepo } = await this.prompt([
+        {
+          name: 'useRepo',
+          type: 'confirm',
+          message: 'Is there an existing repo you want to use for the new project?',
+          when: !this.reEnterGithubCreds,
+          default: true,
+        },
+      ]));
+    }
+
+    if (useRepo) {
+      await this.prompt([
+        {
+          name: 'repository',
+          message: 'Repository name:',
+          validate: nonEmptyString,
+        },
+        {
+          name: 'username',
+          message: 'Github user/account name:',
+          default: this.github.username,
+          validate: githubUsername,
+        },
+        {
+          name: 'autoCommit',
+          type: 'confirm',
+          message: 'Do you want the generator to push the initial commit?',
+          default: this.github.autoCommit,
+        },
+      ]).then(async ({ username, repository, autoCommit }) => {
+        // using stdout to reset the cursor and overwrite the printed line
+        process.stdout.write(`  Checking for repository...\r`);
+
+        const repoEndpoint = `https://api.github.com/repos/${username}/${repository}`;
+        const response = await fetch(repoEndpoint);
+        const { id, git_url: gitURL } = await response.json();
+
+        if (!id) {
+          this.log(`  Checking for repository... ❗\n  Repository could not be found`);
+
+          await this.prompt([
+            {
+              name: 'changeInput',
+              type: 'confirm',
+              message: 'Re-enter user and repository name?',
+            },
+          ]).then(async ({ changeInput }) => {
+            if (changeInput) {
+              this.reEnterGithubCreds = true;
+              await this._determineSetupState();
+            }
+          });
+        } else {
+          this.log(`  Checking for repository... 🆗`);
+
           this.github.username = username;
           this.github.repository = repository;
           this.github.autoCommit = autoCommit;
-          this.github.url = `git@github.com:${username}/${repository}.git`;
-        });
-      }
-
+          this.github.url = gitURL;
+        }
+      });
+    } else {
       this.github.autoCommit = false;
-      return null;
-    });
+    }
 
-    this.log('Getting react-boilerplate tags...');
+    await this._getBoilerplateTags();
+  }
+
+  async _getBoilerplateTags() {
+    process.stdout.write(`  Getting react-boilerplate tags...\r`);
 
     // get the latest tag
     const listTags = 'git ls-remote --tags --quiet git@github.com:react-boilerplate/react-boilerplate.git | tail -5';
     const output = await execSync(listTags)
       .toString()
       .trim();
+
+    this.log(`  Getting react-boilerplate tags... 🆗`);
 
     const commitsAndTags = output.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/gim);
     const choices = commitsAndTags.reverse().map(line => {
@@ -279,12 +321,12 @@ module.exports = class App extends Generator {
       };
     });
 
-    await this.prompt([
+    return this.prompt([
       {
         name: 'tag',
         type: 'list',
         message: 'Choose the react-boilerplate tag you want to base your project on:',
-        choices: choices.map(({ tag }) => tag),
+        choices: choices.map(item => item.tag),
       },
     ]).then(({ tag }) => {
       const { hash } = choices.find(choice => tag === choice.tag);
@@ -338,9 +380,9 @@ module.exports = class App extends Generator {
         validate: languageCode,
       },
       {
-        name: 'subdomain',
+        name: 'subdomainName',
         message: `Subdomain ${chalk.reset.dim.white('(<subdomain>.amsterdam.nl)')}:`,
-        validate: nonEmptyString,
+        validate: subdomain,
       },
       {
         name: 'apiProxyDir',
@@ -368,7 +410,7 @@ module.exports = class App extends Generator {
         license,
         name,
         seoName,
-        subdomain,
+        subdomainName,
         truncateReadme,
         version,
       } = answers;
@@ -381,7 +423,7 @@ module.exports = class App extends Generator {
       this.project.name = name;
       this.project.seoName = seoName;
       this.project.version = version;
-      this.project.subdomain = subdomain;
+      this.project.subdomain = subdomainName;
       this.project.apiProxyDir = apiProxyDir;
       this.project.truncateReadme = truncateReadme;
     });
@@ -418,7 +460,7 @@ module.exports = class App extends Generator {
     this._showBrand();
     this._showSectionTitle(
       'PWA parameters',
-      'The input for the parameters below will be used to populate the manifest.json file',
+      'The input for the parameters below will be used to populate the manifest.json file (production only)',
     );
 
     return this.prompt([

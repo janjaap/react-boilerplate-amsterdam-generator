@@ -56,105 +56,91 @@ and select `Arbp`.
 Press <Enter> or type 'Y' to enter repository details. The repository name and Github user name will be used to set the Git remote.
 Press 'n' to skip.
 
-- Repository name
+<dl>
+  <dt>Repository name</dt>
+  <dd>Valid repo name.</dd>
 
-  Valid repo name
+  <dt>Github user/account name</dt>
+  <dd>
+    Valid Github user name. The generator will prompt for re-entering the data if the repository cannot be found in the given user's account. You can choose to skip that step and go with the values you entered. For instance, when there is no repository yet, but there will be one with the given name for that user.
+  </dd>
 
-- Github user/account name
+  <dt>Do you want the generator to push the initial commit?</dt>
+  <dd>Press <Enter> or type 'Y' to have the generator push the first commit (message: "First commit") to the remote repository.</dd>
 
-  Valid Github user name. The generator will prompt for re-entering the data if the repository cannot be found in the given user's account. You can choose to skip that step and go with the values you entered. For instance, when there is no repository yet, but there will be one with the given name for that user.
-
-- Do you want the generator to push the initial commit?
-
-  Press <Enter> or type 'Y' to have the generator push the first commit (message: "First commit") to the remote repository.
-
-- Choose the react-boilerplate tag you want to base your project on
-
-  The generator will fetch the five latest tags from the [`react-boilerplate`](https://github.com/react-boilerplate/react-boilerplate) repository. Check the [changelog](https://github.com/react-boilerplate/react-boilerplate/blob/master/Changelog.md) for details on each version.
+  <dt>Choose the react-boilerplate tag you want to base your project on</dt>
+  <dd>The generator will fetch the five latest tags from the [`react-boilerplate`](https://github.com/react-boilerplate/react-boilerplate) repository. Check the [changelog](https://github.com/react-boilerplate/react-boilerplate/blob/master/Changelog.md) for details on each version.</dd>
+</dl>
 
 ### 2. Project parameters
 
-- Project name
+<dl>
+  <dt>Project name</dt>
+  <dd>The value for this input will be used to populate the `name` field in `package.json`, set the prefix for constants (in `constants.js` files), set the value for the `apple-mobile-web-app-title` meta tag in `index.html` and is printed in `Jenkinsfile`.</dd>
 
-  The value for this input will be used to populate the `name` field in `package.json`, set the prefix for constants (in `constants.js` files), set the value for the `apple-mobile-web-app-title` meta tag in `index.html` and is printed in `Jenkinsfile`.
+  <dt>Project title</dt>
+  <dd>Readable project name. Is printed in `index.html` as the document title and is used to populate `manifest.json`. See [PWA](#PWA).</dd>
 
-- Project title
+  <dt>Version</dt>
+  <dd>The version is validated against a [Semver](https://semver.org/) regex.</dd>
 
-  Readable project name. Is printed in `index.html` as the document title and is used to populate `manifest.json`. See [PWA](#PWA)
+  <dt>Description (optional)</dt>
+  <dd>Used to populate the `description` fields in `package.json` and `manifest.json`.</dd>
 
-- Version
+  <dt>Author</dt>
+  <dd>Used to populate the `author` field in `package.json`.</dd>
 
-  The version is validated against a [Semver](https://semver.org/) regex.
+  <dt>License</dt>
+  <dd>Used to populate the `license` field in `package.json`</dd>
 
-- Description (optional)
+  <dt>Language</dt>
+  <dd>Has to be a valid [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes). Is used to set the application's default language and to resolve imports for language support in `app/app.js`.</dd>
 
-  Used to populate the `description` fields in `package.json` and `manifest.json`
+  <dt>Subdomain</dt>
+  <dd>Part of the `amsterdam.nl` domain on which the website will be hosted. The value is validated against a list of reserved subdomain names.</dd>
 
-- Author
+  <dt>API proxy dir (optional)</dt>
+  <dd>Subdirectory on the `acc.data.amsterdam.nl` domain through which the application's API will be available. Useful for when the API isn't available and data structures need to be mocked with [Dyson](https://github.com/webpro/dyson) during development.</dd>
 
-  Used to populate the `author` field in `package.json`
+  <dt>Run `npm install` after project generation?</dt>
+  <dd>Press <Enter> or type 'Y' for the generator to install all NPM dependencies after the setup has completed.</dd>
 
-- License
-
-  Used to populate the `license` field in `package.json`
-
-- Language
-
-  Has to be a valid [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes). Is used to set the application's default language and to resolve imports for language support in `app/app.js`.
-
-- Subdomain
-
-  Part of the `amsterdam.nl` domain on which the website will be hosted. The value is validated against a list of reserved subdomain names.
-
-- API proxy dir (optional)
-
-  Subdirectory on the `acc.data.amsterdam.nl` domain through which the application's API will be available. Useful for when the API isn't available and data structures need to be mocked with [Dyson](https://github.com/webpro/dyson) during development.
-
-- Run `npm install` after project generation?
-
-  Press <Enter> or type 'Y' for the generator to install all NPM dependencies after the setup has completed.
-
-- Truncate `README.md?`
-
-  Press <Enter> or type 'Y' to replace the source repo's readme file with the project's title and description. Typing 'n' will leave the original readme intact.
+  <dt>Truncate `README.md?`</dt>
+  <dd>Press <Enter> or type 'Y' to replace the source repo's readme file with the project's title and description. Typing 'n' will leave the original readme intact.</dd>
+</dl>
 
 ### 3. Jenkinsfile parameters
 
-- Job name
+<dl>
+  <dt>Job name</dt>
+  <dd>Used to configure the docker image creation and build step. Has to reference one of the IDs in the [Docker registry](https://build.app.amsterdam.nl/repositories/).</dd>
 
-  Used to configure the docker image creation and build step. Has to reference one of the IDs in the [Docker registry](https://build.app.amsterdam.nl/repositories/).
+  <dt>Playbook</dt>
+  <dd>Ansible deployment playbook name.</dd>
 
-- Playbook
-
-  Ansible deployment playbook name
-
-- Project ID
-
-  `docker-compose` Project name
+  <dt>Project ID</dt>
+  <dd>`docker-compose` Project name.</dd>
+</dl>
 
 ### 4. PWA parameters
 
-- Do you want to have a manifest.json file generated?
+<dl>
+  <dt>Do you want to have a manifest.json file generated?</dt>
+  <dd>Press <Enter> or type 'Y' to configure the properties for the `manifest.json` file. Note that the file will only be generated at build-time.
+  Pressing 'n' will remove the `WebpackPwaManifest` entry from Webpack's production configuration.</dd>
 
-  Press <Enter> or type 'Y' to configure the properties for the `manifest.json` file. Note that the file will only be generated at build-time.
-  Pressing 'n' will remove the `WebpackPwaManifest` entry from Webpack's production configuration.
+  <dt>Name</dt>
+  <dd>See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#name) for details.</dd>
 
-- Name
+  <dt>Short name/dt>
+  <dd>See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#short_name) for details.</dd>
 
-  See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#name) for details
+  <dt>Description (optional)</dt>
+  <dd>See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#description) for details.</dd>
 
-- Short name
+  <dt>Background color</dt>
+  <dd>See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#background_color) for details.</dd>
 
-  See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#short_name) for details
-
-- Description (optional)
-
-  See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#description) for details
-
-- Background color
-
-  See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#background_color) for details
-
-- Theme color
-
-  See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#theme_color) for details
+  <dt>Theme color</dt>
+  <dd>See [https://developer.mozilla.org/en-US/docs/Web/Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest#theme_color) for details.</dd>
+</dl>

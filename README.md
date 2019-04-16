@@ -53,7 +53,7 @@ and select `Arbp`.
 
 ### 1. Github user and repository name
 
-Press <Enter> or type 'Y' to enter repository details. The repository name and Github user name will be used to set the Git remote.
+Press &lt;Enter&gt; or type 'Y' to enter repository details. The repository name and Github user name will be used to set the Git remote.
 Press 'n' to skip.
 
 <dl>
@@ -66,7 +66,7 @@ Press 'n' to skip.
   </dd>
 
   <dt>Do you want the generator to push the initial commit?</dt>
-  <dd>Press <Enter> or type 'Y' to have the generator push the first commit (message: "First commit") to the remote repository.</dd>
+  <dd>Press &lt;Enter&gt; or type 'Y' to have the generator push the first commit (message: "First commit") to the remote repository.</dd>
 
   <dt>Choose the react-boilerplate tag you want to base your project on</dt>
   <dd>The generator will fetch the five latest tags from the <a href="https://github.com/react-boilerplate/react-boilerplate"><code>react-boilerplate</code></a> repository. Check the <a href="https://github.com/react-boilerplate/react-boilerplate/blob/master/Changelog.md">changelog</a> for details on each version.</dd>
@@ -103,10 +103,10 @@ Press 'n' to skip.
   <dd>Subdirectory on the <code>acc.data.amsterdam.nl</code> domain through which the application's API will be available. Useful for when the API isn't available and data structures need to be mocked with <a href="https://github.com/webpro/dyson">Dyson</a> during development.</dd>
 
   <dt>Run <code>npm install</code> after project generation?</dt>
-  <dd>Press <Enter> or type 'Y' for the generator to install all NPM dependencies after the setup has completed.</dd>
+  <dd>Press &lt;Enter&gt; or type 'Y' for the generator to install all NPM dependencies after the setup has completed.</dd>
 
   <dt>Truncate <code>README.md?</code></dt>
-  <dd>Press <Enter> or type 'Y' to replace the source repo's readme file with the project's title and description. Typing 'n' will leave the original readme intact.</dd>
+  <dd>Press &lt;Enter&gt; or type 'Y' to replace the source repo's readme file with the project's title and description. Typing 'n' will leave the original readme intact.</dd>
 </dl>
 
 ### 3. Jenkinsfile parameters
@@ -126,7 +126,7 @@ Press 'n' to skip.
 
 <dl>
   <dt>Do you want to have a manifest.json file generated?</dt>
-  <dd>Press <Enter> or type 'Y' to configure the properties for the <code>manifest.json</code> file. Note that the file will only be generated at build-time.
+  <dd>Press &lt;Enter&gt; or type 'Y' to configure the properties for the <code>manifest.json</code> file. Note that the file will only be generated at build-time.
   Pressing 'n' will remove the <code>WebpackPwaManifest</code> entry from Webpack's production configuration.</dd>
 
   <dt>Name</dt>

@@ -38,7 +38,7 @@ This will create a global NPM package and you will be able to run the generator 
 From the command line, run
 
 ```
-yo arbp
+yo amsterdam-react-boilerplate
 ```
 
 or
@@ -47,7 +47,7 @@ or
 yo
 ```
 
-and select `Arbp`.
+and select `Amsterdam React Boilerplate`.
 
 ## Installation steps
 

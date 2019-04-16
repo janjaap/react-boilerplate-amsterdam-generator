@@ -1,14 +1,18 @@
 {
   "name": "generator-amsterdam-react-boilerplate",
   "version": "0.1.0",
-  "description": "Amsterdam React Boilerplate Generator",
+  "description": "Amsterdam's Datapunt/OIS React Boilerplate Generator",
+  "author": {
+    "name": "JJM van Deursen",
+    "url": "https://github.com/janjaap"
+  },
   "engines": {
     "npm": ">=5",
     "node": ">=8"
   },
   "repository": {
-    "type" : "git",
-    "url" : "git@github.com:janjaap/react-boilerplate-amsterdam-generator.git"
+    "type": "git",
+    "url": "git@github.com:janjaap/react-boilerplate-amsterdam-generator.git"
   },
   "license": "MIT",
   "files": [

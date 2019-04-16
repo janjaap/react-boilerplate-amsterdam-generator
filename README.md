@@ -15,6 +15,13 @@ The generator takes care of:
 - (optionally) installing all dependencies
 - (optionally) pushing the initial commit
 
+## Requirements
+
+ - `npm >=5`
+ - `node >=8`
+
+Has **NOT** been tested on Windows.
+
 ## Installation
 
 ### Install Yeoman
@@ -23,28 +30,38 @@ The generator takes care of:
 $ npm install -g yo
 ```
 
-### Clone this repository
+### Clone this repository or
 
 After cloning, `cd` into the folder the repository is cloned in and run:
 
 ```
-npm link
+$ npm link
 ```
 
 This will create a global NPM package and you will be able to run the generator from any folder.
+
+## Find through Yeoman CLI
+
+Run
+
+```
+$ yo
+```
+
+and select `Install a generator`. Type `amsterdam-react-boilerplate` and select the match.
 
 ## Running
 
 From the command line, run
 
 ```
-yo amsterdam-react-boilerplate
+$ yo amsterdam-react-boilerplate
 ```
 
 or
 
 ```
-yo
+$ yo
 ```
 
 and select `Amsterdam React Boilerplate`.

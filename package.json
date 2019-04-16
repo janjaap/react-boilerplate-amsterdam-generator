@@ -42,11 +42,12 @@
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-redux-saga": "^1.0.0",
     "iso-lang-codes": "^1.0.3",
+    "log-symbols": "^2.2.0",
     "namor": "^1.1.2",
-    "prettier": "^1.16.4",
-    "semver-regex": "^2.0.0",
-    "yeoman-generator": "^3",
     "node-fetch": "^2.3.0",
-    "redux-saga": "^1.0.2"
+    "prettier": "^1.16.4",
+    "redux-saga": "^1.0.2",
+    "semver-regex": "^2.0.0",
+    "yeoman-generator": "^3"
   }
 }

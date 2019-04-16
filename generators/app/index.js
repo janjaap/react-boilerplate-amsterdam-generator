@@ -5,6 +5,7 @@ const fs = require('fs');
 const merge = require('deepmerge');
 const childProces = require('child_process');
 const fetch = require('node-fetch');
+const logSymbols = require('log-symbols');
 
 const validators = require('./validators');
 const utils = require('./utils');
@@ -181,7 +182,7 @@ module.exports = class App extends Generator {
 
     const stepLines = steps
       .map((step, index) => {
-        const complete = index < stepNumber ? ' (complete)' : '...';
+        const complete = index <= stepNumber ? ` ${chalk(logSymbols.success)}` : '...';
         const stepLine = ` ${index + 1}. ${step}${complete}`;
         let color = index === stepNr ? chalk.yellow : chalk.dim.yellow;
 
@@ -270,7 +271,7 @@ module.exports = class App extends Generator {
         const { id, git_url: gitURL } = await response.json();
 
         if (!id) {
-          this.log(`  Checking for repository... ❗\n  Repository could not be found`);
+          this.log(`  Checking for repository... ${logSymbols.error}\n  Repository could not be found`);
 
           await this.prompt([
             {
@@ -285,7 +286,7 @@ module.exports = class App extends Generator {
             }
           });
         } else {
-          this.log(`  Checking for repository... 🆗`);
+          this.log(`  Checking for repository... ${logSymbols.success}`);
 
           this.github.username = username;
           this.github.repository = repository;
@@ -310,7 +311,7 @@ module.exports = class App extends Generator {
       .toString()
       .trim();
 
-    this.log(`  Getting react-boilerplate tags... 🆗`);
+    this.log(`  Getting react-boilerplate tags... ${logSymbols.success}`);
 
     const commitsAndTags = output.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/gim);
     const choices = commitsAndTags.reverse().map(line => {

@@ -291,13 +291,14 @@ module.exports = class App extends Generator {
           this.github.repository = repository;
           this.github.autoCommit = autoCommit;
           this.github.url = gitURL;
+
+          await this._getBoilerplateTags();
         }
       });
     } else {
       this.github.autoCommit = false;
+      await this._getBoilerplateTags();
     }
-
-    await this._getBoilerplateTags();
   }
 
   async _getBoilerplateTags() {

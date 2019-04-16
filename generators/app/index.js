@@ -181,7 +181,7 @@ module.exports = class App extends Generator {
 
     const stepLines = steps
       .map((step, index) => {
-        const complete = index < stepNumber ? ' 🆗' : '...';
+        const complete = index < stepNumber ? ' (complete)' : '...';
         const stepLine = ` ${index + 1}. ${step}${complete}`;
         let color = index === stepNr ? chalk.yellow : chalk.dim.yellow;
 

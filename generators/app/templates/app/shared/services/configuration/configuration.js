@@ -3,7 +3,9 @@ import globalConfig from 'globalConfig'; // eslint-disable-line import/extension
 const domainName = '<%= subdomain %>.amsterdam.nl';
 const apiDomainName = 'api.data.amsterdam.nl';
 
-const { HOST = 'localhost', HTTPS, PORT = '3000' } = process.env;
+const { HOST } = process.env;
+const { HTTPS } = process.env;
+const { PORT } = process.env;
 const scheme = HTTPS ? 'https' : 'http';
 
 const defaultConfig = {

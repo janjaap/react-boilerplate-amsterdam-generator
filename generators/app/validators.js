@@ -13,10 +13,10 @@ const noSpacesString = value => {
   return isValid || 'The value cannot be empty and should not contain spaces';
 };
 
+const reSemver = /\bv?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?\b/;
+
 const semverRegex = value => {
-  const isValid = /\bv?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?\b/gi.test(
-    value,
-  );
+  const isValid = new RegExp(reSemver, 'gi').test(value);
 
   return isValid || `'${value}' is not a valid semver format`;
 };
@@ -73,6 +73,7 @@ module.exports = {
   languageCode,
   nonEmptyString,
   noSpacesString,
+  reSemver,
   semverRegex,
   subdomain,
 };

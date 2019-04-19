@@ -12,7 +12,7 @@ const utils = require('./utils');
 
 const { execSync, spawnSync } = childProces;
 
-const { nonEmptyString, noSpacesString, semverRegex, languageCode, subdomain, githubUsername } = validators;
+const { nonEmptyString, noSpacesString, reSemver, semverRegex, languageCode, subdomain, githubUsername } = validators;
 const { deleteFolderRecursive } = utils;
 
 module.exports = class App extends Generator {
@@ -302,11 +302,15 @@ module.exports = class App extends Generator {
     }
   }
 
+  /**
+   * Gets latest five tags from Github repository
+   * Tag 4.0 is excluded for now, because it hasn't been tested against the current generator code.
+   */
   async _getBoilerplateTags() {
     process.stdout.write(`  Getting react-boilerplate tags...\r`);
 
-    // get the latest tag
-    const listTags = 'git ls-remote --tags --quiet git@github.com:react-boilerplate/react-boilerplate.git | tail -5';
+    // get the latest tags
+    const listTags = 'git ls-remote --tags --quiet git@github.com:react-boilerplate/react-boilerplate.git | tail -10';
     const output = await execSync(listTags)
       .toString()
       .trim();
@@ -314,14 +318,23 @@ module.exports = class App extends Generator {
     this.log(`  Getting react-boilerplate tags... ${logSymbols.success}`);
 
     const commitsAndTags = output.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/gim);
-    const choices = commitsAndTags.reverse().map(line => {
-      const [, hash, tag] = line.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/);
+    const choices = commitsAndTags
+      .reverse()
+      .map(line => {
+        const [, hash, tag] = line.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/);
+        const [, major] = tag.match(reSemver);
 
-      return {
-        hash,
-        tag,
-      };
-    });
+        if (major > 3) {
+          return null;
+        }
+
+        return {
+          hash,
+          tag,
+        };
+      })
+      .filter(Boolean)
+      .slice(0, 5);
 
     return this.prompt([
       {
@@ -735,14 +748,19 @@ ${this.project.description}
       const npmInstall = spawnSync('npm', ['i', '--no-progress', '--no-optional', '--no-audit']);
 
       if (npmInstall.status !== 0) {
-        return this.prompt([
-          {
-            name: 'continue',
-            type: 'confirm',
-            message: 'npm Installation failed. Skip initial commit?',
-            default: 'Press any key',
-          },
-        ]).then(({ confirm }) => confirm);
+        if (this.github.autoCommit) {
+          return this.prompt([
+            {
+              name: 'continue',
+              type: 'confirm',
+              message: 'npm Installation failed. Skip initial commit?',
+              default: 'Press any key',
+            },
+          ]).then(({ confirm }) => confirm);
+        }
+
+        this.log(chalk.bold.red('  npm Installation failed'));
+        process.exit(1);
       }
     }
 

@@ -20,7 +20,10 @@
   ],
   "keywords": [
     "yeoman-generator",
+    "yeoman",
+    "generator",
     "amsterdam",
+    "OIS",
     "datapunt",
     "react",
     "react-boilerplate"

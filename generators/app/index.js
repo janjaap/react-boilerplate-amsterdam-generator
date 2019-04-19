@@ -680,6 +680,7 @@ module.exports = class App extends Generator {
     fs.unlinkSync(this.destinationPath('app/app.js'));
     fs.unlinkSync(this.destinationPath('app/i18n.js'));
     fs.unlinkSync(this.destinationPath('server/index.js'));
+    fs.unlinkSync(this.destinationPath('server/logger.js'));
 
     if (this.project.truncateReadme) {
       fs.unlinkSync(this.destinationPath('README.md'));

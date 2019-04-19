@@ -36,6 +36,7 @@ setup(app, {
 const customHost = argv.host || process.env.HOST;
 const host = customHost || null; // Let http.Server use its default IPv6/4 host
 const prettyHost = customHost || 'localhost';
+const server = SSL ? https.createServer(options, app) : app;
 
 // use the gzipped bundle
 app.get('*.js', (req, res, next) => {
@@ -44,13 +45,13 @@ app.get('*.js', (req, res, next) => {
   next();
 });
 
-const server = SSL ? https.createServer(options, app) : app;
-
 // Start your app.
 server.listen(port, host, async err => {
   if (err) {
     return logger.error(err.message);
   }
+
+  const scheme = SSL ? 'https' : 'http';
 
   // Connect to ngrok in dev mode
   if (ngrok) {
@@ -60,8 +61,8 @@ server.listen(port, host, async err => {
     } catch (e) {
       return logger.error(e);
     }
-    logger.appStarted(port, prettyHost, url);
+    logger.appStarted(port, prettyHost, url, scheme);
   } else {
-    logger.appStarted(port, prettyHost);
+    logger.appStarted(port, prettyHost, undefined, scheme);
   }
 });

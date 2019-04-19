@@ -3,9 +3,12 @@ import globalConfig from 'globalConfig'; // eslint-disable-line import/extension
 const domainName = '<%= subdomain %>.amsterdam.nl';
 const apiDomainName = 'api.data.amsterdam.nl';
 
+const { HOST = 'localhost', HTTPS, PORT = '3000' } = process.env;
+const scheme = HTTPS ? 'https' : 'http';
+
 const defaultConfig = {
   API_ROOT: `https://acc.${apiDomainName}/`,
-  ROOT: 'http://localhost:3001/',
+  ROOT: `${scheme}://${HOST}:${PORT}/`,
   AUTH_ROOT: 'https://acc.api.data.amsterdam.nl/',
 };
 

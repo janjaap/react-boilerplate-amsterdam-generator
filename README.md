@@ -40,7 +40,13 @@ $ npm link
 
 This will create a global NPM package and you will be able to run the generator from any folder.
 
-## Find through Yeoman CLI
+### Install as global NPM package or
+
+```
+$ npm i -g generator-amsterdam-react-boilerplate
+```
+
+### Find through Yeoman CLI
 
 Run
 
@@ -161,3 +167,11 @@ Press 'n' to skip.
   <dt>Theme color</dt>
   <dd>See <a href="https://developer.mozilla.org/en-US/docs/Web/Manifest#theme_color">developer.mozilla.org/en-US/docs/Web/Manifest</a> for details.</dd>
 </dl>
+
+## HTTPS in development
+
+<a href="https://github.com/react-boilerplate/react-boilerplate">`react-boilerplate`</a> doens't offer running the dev environment in https. The Datapunt React project generator, however, does. Setting `HTTPS` as environment variable will start the Express server with a [self-signed certificate](app/templates/server/cert).
+
+```
+$ HTTPS=true npm run start
+```

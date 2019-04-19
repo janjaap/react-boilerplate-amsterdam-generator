@@ -24,6 +24,7 @@ const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
             </span>
           </a>
         </h1>
+        <span className="header-title"><%= seoProjectName %></span>
       </div>
       <div className="col-sm-6">
         <nav>

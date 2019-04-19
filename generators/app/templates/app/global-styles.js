@@ -64,7 +64,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     .container {
-      width: auto;
+      width: 100%;
     }
   }
 

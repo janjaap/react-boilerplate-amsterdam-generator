@@ -16,7 +16,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import FontFaceObserver from 'fontfaceobserver';
 import moment from 'moment';
 import 'moment/src/locale/nl';
-import createHistory from 'history/createBrowserHistory';
+import history from 'utils/history';
 import 'leaflet/dist/leaflet';
 import { authenticate } from 'shared/services/auth/auth';
 import { authenticateUser } from 'containers/App/actions';
@@ -49,7 +49,6 @@ moment.locale('<%= language %>');
 
 // Create redux store with history
 const initialState = {};
-const history = createHistory();
 const store = configureStore(initialState, history);
 const MOUNT_NODE = document.getElementById('app');
 

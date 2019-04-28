@@ -786,17 +786,23 @@ ${this.project.description}
     const gitPush = spawnSync('git', ['push', '-u', 'origin', 'master']);
 
     if (gitAdd.status !== 0) {
-      this._showError(`Could not add files. Command '${gitAdd.args.join(' ')}' failed.`);
+      const { args, stderr } = gitAdd;
+
+      this._showError(`Could not add files. Command '${args.join(' ')}' failed.\nError: ${stderr.toString()}`);
       return false;
     }
 
     if (gitCommit.status !== 0) {
-      this._showError(`Could not commit. Command '${gitCommit.args.join(' ')}' failed.`);
+      const { args, stderr } = gitCommit;
+
+      this._showError(`Could not commit. Command '${args.join(' ')}' failed.\nError: ${stderr.toString()}`);
       return false;
     }
 
     if (gitPush.status !== 0) {
-      this._showError(`Could not push. Command '${gitPush.args.join(' ')}' failed.`);
+      const { args, stderr } = gitPush;
+
+      this._showError(`Could not push. Command '${args.join(' ')}' failed.\nError: ${stderr.toString()}`);
       return false;
     }
 

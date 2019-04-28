@@ -18,6 +18,12 @@ import { AUTHORIZE_USER, SHOW_GLOBAL_ERROR, RESET_GLOBAL_ERROR, AUTHENTICATE_USE
 export const initialState = {
   loading: false,
   error: false,
+};
+
+// The initial state of the App
+export const initialState = {
+  loading: false,
+  error: false,
   userName: undefined,
   userScopes: [],
   accessToken: undefined,
@@ -26,6 +32,11 @@ export const initialState = {
 /* eslint-disable default-case, no-param-reassign */
 const appReducer = (state = initialState, action) =>
   produce(state, draft => {
+    if (!action.payload) {
+      draft = state;
+      return;
+    }
+
     switch (action.type) {
       case AUTHENTICATE_USER:
       case AUTHORIZE_USER:

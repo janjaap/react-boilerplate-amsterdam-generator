@@ -13,7 +13,7 @@ const noSpacesString = value => {
   return isValid || 'The value cannot be empty and should not contain spaces';
 };
 
-const reSemver = /\bv?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?\b/;
+const reSemver = /v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?/;
 
 const semverRegex = value => {
   const isValid = new RegExp(reSemver, 'gi').test(value);
@@ -64,6 +64,11 @@ const reserved = [
 ];
 
 const subdomain = value => {
+  const emptyStringValidation = nonEmptyString(value);
+  if (emptyStringValidation !== true) {
+    return emptyStringValidation;
+  }
+
   const isValid = namor.isValid(value, { reserved });
   return isValid || `'${value}' is a reserved subdomain`;
 };
@@ -73,7 +78,6 @@ module.exports = {
   languageCode,
   nonEmptyString,
   noSpacesString,
-  reSemver,
   semverRegex,
   subdomain,
 };

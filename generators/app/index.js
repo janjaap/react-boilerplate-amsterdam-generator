@@ -8,20 +8,31 @@ const fetch = require('node-fetch');
 const logSymbols = require('log-symbols');
 
 const validators = require('./validators');
+const filters = require('./filters');
 const utils = require('./utils');
 
 const { execSync, spawnSync } = childProces;
 
-const { nonEmptyString, noSpacesString, reSemver, semverRegex, languageCode, subdomain, githubUsername } = validators;
+const { toLowerCase } = filters;
+const { nonEmptyString, noSpacesString, semverRegex, languageCode, subdomain, githubUsername } = validators;
 const { deleteFolderRecursive } = utils;
 
 module.exports = class App extends Generator {
   async initializing() {
     this.github = {
-      username: 'Amsterdam',
+      autoCommit: true,
       repository: '',
       url: '',
-      autoCommit: true,
+      username: 'Amsterdam',
+      tag: {
+        tagStr: '',
+        hash: '',
+        version: {
+          major: 0,
+          minor: 0,
+          patch: 0,
+        },
+      },
     };
 
     this.project = {
@@ -70,17 +81,20 @@ module.exports = class App extends Generator {
     await this._getPWADetails();
   }
 
-  async configuring() {
+  configuring() {
     this._showBrand();
     this._showInstallSteps(0);
 
-    const { hash, tag, url } = this.github;
+    const {
+      tag: { hash, tagStr },
+      url,
+    } = this.github;
 
     // check out the tag
     const gitClone = spawnSync('git', [
       'clone',
       '--branch',
-      tag,
+      tagStr,
       '--single-branch',
       '--quiet',
       'git@github.com:react-boilerplate/react-boilerplate.git',
@@ -108,7 +122,6 @@ module.exports = class App extends Generator {
     this._setScripts();
     this._setWebpackRules();
     this._setPWADetails();
-    // this._setLanguageConfig();
 
     this._writePackageJson();
   }
@@ -262,13 +275,18 @@ module.exports = class App extends Generator {
           message: 'Do you want the generator to push the initial commit?',
           default: this.github.autoCommit,
         },
-      ]).then(async ({ username, repository, autoCommit }) => {
+      ]).then(async github => {
         // using stdout to reset the cursor and overwrite the printed line
         process.stdout.write(`  Checking for repository...\r`);
 
+        const { username, repository } = github;
         const repoEndpoint = `https://api.github.com/repos/${username}/${repository}`;
         const response = await fetch(repoEndpoint);
-        const { id, git_url: gitURL } = await response.json();
+        const responseJson = await response.json();
+        const { id, git_url: gitURL, ssh_url: sshURL } = responseJson;
+
+        const githubSSHTest = spawnSync('ssh', ['-T', 'git@github.com']);
+        const sshEnabled = /successfully authenticated/.test(githubSSHTest.output.toString());
 
         if (!id) {
           this.log(`  Checking for repository... ${logSymbols.error}\n  Repository could not be found`);
@@ -288,10 +306,8 @@ module.exports = class App extends Generator {
         } else {
           this.log(`  Checking for repository... ${logSymbols.success}`);
 
-          this.github.username = username;
-          this.github.repository = repository;
-          this.github.autoCommit = autoCommit;
-          this.github.url = gitURL;
+          this.github = github;
+          this.github.url = sshEnabled ? sshURL : gitURL;
 
           await this._getBoilerplateTags();
         }
@@ -310,27 +326,29 @@ module.exports = class App extends Generator {
     process.stdout.write(`  Getting react-boilerplate tags...\r`);
 
     // get the latest tags
-    const listTags = 'git ls-remote --tags --quiet git@github.com:react-boilerplate/react-boilerplate.git | tail -10';
+    const listTags = 'git ls-remote --tags --quiet git@github.com:react-boilerplate/react-boilerplate.git | tail -5';
     const output = await execSync(listTags)
       .toString()
       .trim();
 
     this.log(`  Getting react-boilerplate tags... ${logSymbols.success}`);
 
-    const commitsAndTags = output.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/gim);
+    const reTagRefs = /^([^\s]{40})\s*refs\/tags\/(.+)\s*$/;
+    const commitsAndTags = output.match(new RegExp(reTagRefs, 'gim'));
     const choices = commitsAndTags
       .reverse()
       .map(line => {
-        const [, hash, tag] = line.match(/^([^\s]{40})\s*refs\/tags\/(.+)\s*$/);
-        const [, major] = tag.match(reSemver);
-
-        if (major > 3) {
-          return null;
-        }
+        const [, hash, tagStr] = line.match(reTagRefs);
+        const [major, minor, patch] = tagStr.match(/\d/g);
 
         return {
           hash,
-          tag,
+          tagStr,
+          version: {
+            major: Number.parseInt(major, 10),
+            minor: Number.parseInt(minor, 10),
+            patch: Number.parseInt(patch, 10),
+          },
         };
       })
       .filter(Boolean)
@@ -341,12 +359,10 @@ module.exports = class App extends Generator {
         name: 'tag',
         type: 'list',
         message: 'Choose the react-boilerplate tag you want to base your project on:',
-        choices: choices.map(item => item.tag),
+        choices: choices.map(item => item.tagStr),
       },
     ]).then(({ tag }) => {
-      const { hash } = choices.find(choice => tag === choice.tag);
-      this.github.hash = hash;
-      this.github.tag = tag;
+      this.github.tag = choices.find(({ tagStr }) => tagStr === tag);
     });
   }
 
@@ -362,6 +378,7 @@ module.exports = class App extends Generator {
         name: 'name',
         message: `Project name ${chalk.reset.dim.white('(lowercase, no spaces)')}:`,
         validate: noSpacesString,
+        filter: toLowerCase,
       },
       {
         name: 'seoName',
@@ -393,15 +410,18 @@ module.exports = class App extends Generator {
         message: `Language ${chalk.reset.dim.white('(ISO 639-1)')}:`,
         default: this.project.language,
         validate: languageCode,
+        filter: toLowerCase,
       },
       {
-        name: 'subdomainName',
+        name: 'subdomain',
         message: `Subdomain ${chalk.reset.dim.white('(<subdomain>.amsterdam.nl)')}:`,
         validate: subdomain,
+        filter: toLowerCase,
       },
       {
         name: 'apiProxyDir',
         message: `API proxy dir ${chalk.reset.dim.white('(acc.data.amsterdam.nl/<dir>)')}:`,
+        filter: toLowerCase,
       },
       {
         name: 'installDependencies',
@@ -415,32 +435,8 @@ module.exports = class App extends Generator {
         message: 'Truncate README.md?',
         default: true,
       },
-    ]).then(answers => {
-      const {
-        apiProxyDir,
-        author,
-        description,
-        installDependencies,
-        language,
-        license,
-        name,
-        seoName,
-        subdomainName,
-        truncateReadme,
-        version,
-      } = answers;
-
-      this.project.author = author;
-      this.project.description = description;
-      this.project.installDependencies = installDependencies;
-      this.project.language = language;
-      this.project.license = license;
-      this.project.name = name;
-      this.project.seoName = seoName;
-      this.project.version = version;
-      this.project.subdomain = subdomainName;
-      this.project.apiProxyDir = apiProxyDir;
-      this.project.truncateReadme = truncateReadme;
+    ]).then(project => {
+      this.project = project;
     });
   }
 
@@ -464,10 +460,8 @@ module.exports = class App extends Generator {
         message: 'Project ID:',
         validate: nonEmptyString,
       },
-    ]).then(({ job, playbook, projectId }) => {
-      this.jenkins.job = job;
-      this.jenkins.playbook = playbook;
-      this.jenkins.projectId = projectId;
+    ]).then(jenkins => {
+      this.jenkins = jenkins;
     });
   }
 
@@ -486,47 +480,43 @@ module.exports = class App extends Generator {
         default: true,
       },
     ]).then(({ useManifest }) => {
-      if (useManifest) {
-        return this.prompt([
-          {
-            name: 'name',
-            message: 'Name:',
-            default: this.project.seoName,
-            validate: nonEmptyString,
-          },
-          {
-            name: 'shortName',
-            message: 'Short name:',
-            default: this.project.name,
-            validate: nonEmptyString,
-          },
-          {
-            name: 'description',
-            message: 'Description:',
-          },
-          {
-            name: 'backgroundColor',
-            message: 'Background color:',
-            default: this.pwa.backgroundColor,
-            validate: nonEmptyString,
-          },
-          {
-            name: 'themeColor',
-            message: 'Theme color:',
-            default: this.pwa.themeColor,
-            validate: nonEmptyString,
-          },
-        ]).then(({ name, shortName, description, backgroundColor, themeColor }) => {
-          this.pwa.name = name;
-          this.pwa.shortName = shortName;
-          this.pwa.description = description;
-          this.pwa.backgroundColor = backgroundColor;
-          this.pwa.themeColor = themeColor;
-        });
+      if (!useManifest) {
+        this.pwa.useManifest = false;
+        return null;
       }
 
-      this.pwa.useManifest = false;
-      return null;
+      return this.prompt([
+        {
+          name: 'name',
+          message: 'Name:',
+          default: this.project.seoName,
+          validate: nonEmptyString,
+        },
+        {
+          name: 'shortName',
+          message: 'Short name:',
+          default: this.project.name,
+          validate: nonEmptyString,
+        },
+        {
+          name: 'description',
+          message: 'Description:',
+        },
+        {
+          name: 'backgroundColor',
+          message: 'Background color:',
+          default: this.pwa.backgroundColor,
+          validate: nonEmptyString,
+        },
+        {
+          name: 'themeColor',
+          message: 'Theme color:',
+          default: this.pwa.themeColor,
+          validate: nonEmptyString,
+        },
+      ]).then(pwa => {
+        this.pwa = pwa;
+      });
     });
   }
 
@@ -544,17 +534,10 @@ module.exports = class App extends Generator {
   }
 
   _setProjectDetails() {
-    const { url } = this.github;
-    const { author, version, name, description, license } = this.project;
-
     const projectDetails = {
-      author,
-      version,
-      name,
-      description,
-      license,
+      ...this.project,
       repository: {
-        url,
+        url: this.github.url,
       },
     };
 
@@ -603,7 +586,7 @@ module.exports = class App extends Generator {
    * Webpack configuration
    */
   _setPWADetails() {
-    const { useManifest, name, shortName, backgroundColor, themeColor, description } = this.pwa;
+    const { useManifest } = this.pwa;
     const configFile = this.destinationPath('internals/webpack/webpack.prod.babel.js');
     const babelProdContents = this.fs.read(configFile);
     const rePWAPlugin = /new WebpackPwaManifest\(\{[\s\S]+?(?=\}\),)\}\),/;
@@ -611,6 +594,7 @@ module.exports = class App extends Generator {
     let pluginReplace = '';
 
     if (useManifest) {
+      const { name, shortName, backgroundColor, themeColor, description } = this.pwa;
       const rePWAProp = /^\s*(name|short_name|description|background_color|theme_color):\s*'(.+)',?$/;
       const [plugin] = babelProdContents.match(multilinePluginRegExp);
       const lines = plugin.match(new RegExp(rePWAProp, 'gim'));
@@ -645,24 +629,39 @@ module.exports = class App extends Generator {
     this.fs.write(configFile, babelProdContentsModified);
   }
 
+  /**
+   * Adding Amsterdam-specific dependencies
+   * Using Dyson as a API proxy, Enzyme for testing, react-router-redux for navigation, scss for styling and leaflet for map
+   * layers.
+   */
   _setDependencies() {
     const dependencies = {
       'amsterdam-stijl': '^3.0.5',
+      'react-router-redux': '^5.0.0-alpha.8',
       leaflet: '^1.4.0',
       moment: '^2.24.0',
       proj4: '^2.5.0',
-      'react-router-redux': '^5.0.0-alpha.8',
     };
 
     const devDependencies = {
       'babel-plugin-inline-react-svg': '^0.5.4',
-      dyson: '^2.0.3',
       'dyson-generators': '^0.2.0',
       'dyson-image': '^0.2.0',
       'node-sass': '*',
       'npm-run-all': '^4.0.5',
       'sass-loader': '*',
+      dyson: '^2.0.3',
     };
+
+    // applying a different set of dependencies for the react-boilerplate that contains backwards
+    // incompatible changes
+    if (this.github.tag.version.major === 4) {
+      devDependencies.enzyme = '^3.9.0';
+      devDependencies['enzyme-adapter-react-16'] = '^1.2.0';
+      devDependencies['enzyme-to-json'] = '^3.3.5';
+
+      this._setJestConfig();
+    }
 
     this._updatePackageJson({ dependencies, devDependencies });
   }
@@ -679,6 +678,21 @@ module.exports = class App extends Generator {
     };
 
     this._updatePackageJson({ scripts });
+  }
+
+  /**
+   * Appends Enzyme configuration to Jest setup files; react-boilerplate doesn't use Enzyme anymore since
+   * version 4.0
+   */
+  _setJestConfig() {
+    const configFile = this.destinationPath('jest.config.js');
+    const configFileContents = this.fs.read(configFile);
+    const reSetupFiles = /(setupFiles:\s*\[[^\[]+)(\],)/;
+    const enzymeSetup = "'<rootDir>/internals/testing/enzyme-setup.js'";
+    const configWithEnzymeSetup = configFileContents.replace(reSetupFiles, `$1, ${enzymeSetup}$2`);
+
+    fs.unlinkSync(configFile);
+    this.fs.write(configFile, configWithEnzymeSetup);
   }
 
   async _copyTemplateFiles() {
@@ -729,11 +743,7 @@ ${this.project.description}
 
   async _finish() {
     const installSuccessful = await this._installDeps();
-    let commitSuccessful = true;
-
-    if (installSuccessful) {
-      commitSuccessful = await this._autoCommit();
-    }
+    const commitSuccessful = installSuccessful ? await this._autoCommit() : true;
 
     if (commitSuccessful) {
       this._end();
@@ -759,7 +769,7 @@ ${this.project.description}
           ]).then(({ confirm }) => confirm);
         }
 
-        this.log(chalk.bold.red('  npm Installation failed'));
+        this.log(chalk.bold.red(`  Could not install dependencies. Command '${npmInstall.args.join(' ')}' failed.`));
         process.exit(1);
       }
     }
@@ -775,8 +785,24 @@ ${this.project.description}
     const gitCommit = spawnSync('git', ['commit', '--no-verify', "-m 'First commit'"]);
     const gitPush = spawnSync('git', ['push', '-u', 'origin', 'master']);
 
-    if (gitAdd.status !== 0 || gitCommit.status !== 0 || gitPush.status !== 0) {
-      this._showError('Could not commit. Check your local changes and try again');
+    if (gitAdd.status !== 0) {
+      const { args, stderr } = gitAdd;
+
+      this._showError(`Could not add files. Command '${args.join(' ')}' failed.\nError: ${stderr.toString()}`);
+      return false;
+    }
+
+    if (gitCommit.status !== 0) {
+      const { args, stderr } = gitCommit;
+
+      this._showError(`Could not commit. Command '${args.join(' ')}' failed.\nError: ${stderr.toString()}`);
+      return false;
+    }
+
+    if (gitPush.status !== 0) {
+      const { args, stderr } = gitPush;
+
+      this._showError(`Could not push. Command '${args.join(' ')}' failed.\nError: ${stderr.toString()}`);
       return false;
     }
 

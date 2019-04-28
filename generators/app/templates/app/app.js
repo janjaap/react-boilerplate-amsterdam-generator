@@ -12,12 +12,14 @@ import '@babel/polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router/immutable';
+import { ConnectedRouter } from 'connected-react-router';
 import FontFaceObserver from 'fontfaceobserver';
 import moment from 'moment';
 import 'moment/src/locale/nl';
 import createHistory from 'history/createBrowserHistory';
 import 'leaflet/dist/leaflet';
+import { authenticate } from 'shared/services/auth/auth';
+import { authenticateUser } from 'containers/App/actions';
 
 // Import root app
 import App from 'containers/App';
@@ -99,3 +101,7 @@ if (!window.Intl) {
 if (process.env.NODE_ENV === 'production') {
   require('offline-plugin/runtime').install(); // eslint-disable-line global-require
 }
+
+// Authenticate and start the authorization process
+const credentials = authenticate();
+store.dispatch(authenticateUser(credentials));

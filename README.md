@@ -30,7 +30,7 @@ Has **NOT** been tested on Windows.
 $ npm install -g yo
 ```
 
-### Clone this repository or
+### a. Clone this repository
 
 After cloning, `cd` into the folder the repository is cloned in and run:
 
@@ -40,13 +40,13 @@ $ npm link
 
 This will create a global NPM package and you will be able to run the generator from any folder.
 
-### Install as global NPM package or
+### b. Install as global NPM package
 
 ```
 $ npm i -g generator-amsterdam-react-boilerplate
 ```
 
-### Find through Yeoman CLI
+### c. Find through Yeoman CLI
 
 Run
 

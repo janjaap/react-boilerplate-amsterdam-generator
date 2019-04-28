@@ -10,39 +10,46 @@
  *   return state.set('yourStateVariable', true);
  */
 
-import { fromJS } from 'immutable';
+import produce from 'immer';
 
-import { AUTHORIZE_USER, SHOW_GLOBAL_ERROR, RESET_GLOBAL_ERROR } from './constants';
+import { AUTHORIZE_USER, SHOW_GLOBAL_ERROR, RESET_GLOBAL_ERROR, AUTHENTICATE_USER } from './constants';
 
 // The initial state of the App
-export const initialState = fromJS({
+export const initialState = {
   loading: false,
   error: false,
-});
+  userName: undefined,
+  userScopes: [],
+  accessToken: undefined,
+};
 
-function appReducer(state = initialState, action) {
-  switch (action.type) {
-    case AUTHORIZE_USER:
-      return state
-        .set('userName', action.payload.userName)
-        .set('userScopes', fromJS(action.payload.userScopes))
-        .set('accessToken', action.payload.accessToken);
+/* eslint-disable default-case, no-param-reassign */
+const appReducer = (state = initialState, action) =>
+  produce(state, draft => {
+    switch (action.type) {
+      case AUTHENTICATE_USER:
+      case AUTHORIZE_USER:
+        draft.userName = action.payload.userName;
+        draft.userScopes = action.payload.userScopes;
+        draft.accessToken = action.payload.accessToken;
+        break;
 
-    case SHOW_GLOBAL_ERROR:
-      return state
-        .set('error', !!action.payload)
-        .set('errorMessage', action.payload)
-        .set('loading', false);
+      case SHOW_GLOBAL_ERROR:
+        draft.error = !!action.payload;
+        draft.errorMessage = action.payload;
+        draft.loading = false;
+        break;
 
-    case RESET_GLOBAL_ERROR:
-      return state
-        .set('error', false)
-        .set('errorMessage', '')
-        .set('loading', false);
+      case RESET_GLOBAL_ERROR:
+        draft.error = false;
+        draft.errorMessage = '';
+        draft.loading = false;
+        break;
 
-    default:
-      return state;
-  }
-}
+      default:
+        draft = state;
+        break;
+    }
+  });
 
 export default appReducer;

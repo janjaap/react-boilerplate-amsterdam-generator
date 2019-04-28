@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { compose } from 'redux';
 
-import injectSaga from 'utils/injectSaga';
-import injectReducer from 'utils/injectReducer';
+import { useInjectReducer } from 'utils/injectReducer';
+import { useInjectSaga } from 'utils/injectSaga';
 
 import Map from 'containers/MapContainer';
 import NotFoundPage from 'containers/NotFoundPage';
@@ -17,33 +17,34 @@ import saga from './saga';
 
 import GlobalStyles from '../../global-styles';
 
-export const App = () => (
-  <div className="container app-container">
-    <GlobalError />
-    <div className="container">
-      <HeaderContainer />
-    </div>
-    <div className="container-fluid">
-      <MainMenu />
-    </div>
-    <div className="content container">
-      <Switch>
-        <Route exact path="/" component={Map} />
-        <Route path="" component={NotFoundPage} />
-      </Switch>
-    </div>
-    <div className="container-fluid">
-      <Footer />
-    </div>
+const key = 'app';
 
-    <GlobalStyles />
-  </div>
-);
+export const App = () => {
+  useInjectReducer({ key, reducer });
+  useInjectSaga({ key, saga });
 
-const withReducer = injectReducer({ key: 'global', reducer });
-const withSaga = injectSaga({ key: 'global', saga });
+  return (
+    <div className="container app-container">
+      <GlobalError />
+      <div className="container">
+        <HeaderContainer />
+      </div>
+      <div className="container-fluid">
+        <MainMenu />
+      </div>
+      <div className="content container">
+        <Switch>
+          <Route exact path="/" component={Map} />
+          <Route path="" component={NotFoundPage} />
+        </Switch>
+      </div>
+      <div className="container-fluid">
+        <Footer />
+      </div>
 
-export default compose(
-  withReducer,
-  withSaga,
-)(App);
+      <GlobalStyles />
+    </div>
+  );
+};
+
+export default compose(memo)(App);

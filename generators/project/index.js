@@ -19,7 +19,7 @@ module.exports = class ProjectGenerator extends BaseGenerator {
   }
 
   writing() {
-    this._setProjectDetails();
+    this._writeProjectDetails();
   }
 
   async _getProjectDetails() {
@@ -93,12 +93,12 @@ module.exports = class ProjectGenerator extends BaseGenerator {
       },
     ]);
 
-    this.project = project;
+    this.config.set('project', project);
   }
 
-  _setProjectDetails() {
+  _writeProjectDetails() {
     const projectDetails = {
-      ...this.project,
+      ...this.config.get('project'),
       repository: {
         url: this.github.url,
       },

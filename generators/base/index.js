@@ -10,7 +10,7 @@ module.exports = class BaseGenerator extends Generator {
   constructor(...args) {
     super(...args);
 
-    this.github = {
+    this.config.set('github', {
       autoCommit: true,
       repository: '',
       url: '',
@@ -24,9 +24,9 @@ module.exports = class BaseGenerator extends Generator {
           patch: 0,
         },
       },
-    };
+    });
 
-    this.project = {
+    this.config.set('project', {
       author: 'Datapunt Amsterdam',
       name: '',
       seoName: '',
@@ -37,27 +37,28 @@ module.exports = class BaseGenerator extends Generator {
       installDependencies: true,
       runtimeDependencies: {},
       devDependencies: {},
-    };
+      useSass: true,
+    });
 
-    this.pwa = {
+    this.config.set('pwa', {
       name: '',
       shortName: '',
       description: '',
       backgroundColor: '#ffffff',
       themeColor: '#ec0000',
       useManifest: true,
-    };
+    });
 
-    this.jenkins = {
+    this.config.set('jenkins', {
       job: '',
       playbook: '',
       projectId: '',
-    };
+    });
 
     // var that is set after entering wrong repo credentials and choosing to re-enter the values
-    this.reEnterGithubCreds = false;
+    // this.reEnterGithubCreds = false;
 
-    this.packageJson = {};
+    this.config.set('packageJson', {});
   }
 
   _showError(error, bail = false) {

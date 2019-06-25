@@ -6,7 +6,6 @@ const childProces = require('child_process');
 
 const BaseGenerator = require('../base');
 
-const validators = require('./validators');
 const utils = require('./utils');
 
 const { spawnSync } = childProces;
@@ -90,7 +89,7 @@ module.exports = class App extends BaseGenerator {
     const {
       tag: { hash, tagStr },
       url,
-    } = this.github;
+    } = this.config.get('github');
 
     // check out the tag
     const gitClone = spawnSync('git', [
@@ -105,7 +104,6 @@ module.exports = class App extends BaseGenerator {
 
     if (gitClone.status !== 0) {
       this._showError('Could not clone the base repository', true);
-      this.log(gitClone);
     }
 
     spawnSync('git', ['checkout', '-b', 'master']);
@@ -113,7 +111,7 @@ module.exports = class App extends BaseGenerator {
     spawnSync('git', ['remote', 'set-url', 'origin', url]);
 
     // eslint-disable-next-line global-require
-    this.packageJson = require(this.destinationPath('package.json'));
+    this.config.set('packageJson', require(this.destinationPath('package.json')));
   }
 
   writing() {
@@ -123,7 +121,7 @@ module.exports = class App extends BaseGenerator {
     // this._setProjectDetails();
     // this._setDependencies();
     this._setScripts();
-    this._setWebpackRules();
+    this._writeWebpackRules();
     // this._setPWADetails();
 
     this._writePackageJson();
@@ -570,7 +568,7 @@ module.exports = class App extends BaseGenerator {
   // }
 
   _updatePackageJson(values) {
-    this.packageJson = merge(this.packageJson, values);
+    this.packageJson = merge(this.config.get('packageJson'), values);
   }
 
   _writePackageJson() {
@@ -579,7 +577,7 @@ module.exports = class App extends BaseGenerator {
       fs.unlinkSync(this.destinationPath('package.json'));
     }
 
-    return this.fs.writeJSON(this.destinationPath('package.json'), this.packageJson);
+    return this.fs.writeJSON(this.destinationPath('package.json'), this.config.get('packageJson'));
   }
 
   // _setProjectDetails() {
@@ -596,17 +594,8 @@ module.exports = class App extends BaseGenerator {
   /**
    * Applies rules for SCSS parsing and adds env var configuration to the base Webpack configuration file
    */
-  _setWebpackRules() {
+  _writeWebpackRules() {
     const configFile = this.destinationPath('internals/webpack/webpack.base.babel.js');
-
-    /* eslint-disable no-useless-escape */
-    const sassRule = `
-      {
-        test: /\.scss$/,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
-      },
-`;
-    /* eslint-ensable no-useless-escape */
 
     const externals = `
   externals: {
@@ -622,9 +611,22 @@ module.exports = class App extends BaseGenerator {
 
     const babelConfig = this.fs.read(configFile);
 
-    const cfgExtended = babelConfig
-      .replace(rulesProp, `${rulesProp}${sassRule}`)
-      .replace(endOfFileSequence, `${externals}${endOfFileSequence}`);
+    let cfgExtended = babelConfig.replace(endOfFileSequence, `${externals}${endOfFileSequence}`);
+
+    const project = this.config.get('project');
+
+    if (project.useSass) {
+      /* eslint-disable no-useless-escape */
+      const sassRule = `
+        {
+          test: /\.scss$/,
+          use: ['style-loader', 'css-loader', 'sass-loader'],
+        },
+`;
+      /* eslint-ensable no-useless-escape */
+
+      cfgExtended = cfgExtended.replace(rulesProp, `${rulesProp}${sassRule}`);
+    }
 
     fs.unlinkSync(configFile);
     this.fs.write(configFile, cfgExtended);
@@ -755,10 +757,13 @@ module.exports = class App extends BaseGenerator {
     fs.unlinkSync(this.destinationPath('server/index.js'));
     fs.unlinkSync(this.destinationPath('server/logger.js'));
 
-    if (this.project.truncateReadme) {
+    const project = this.config.get('project');
+    const jenkins = this.config.get('jenkins');
+
+    if (project.truncateReadme) {
       fs.unlinkSync(this.destinationPath('README.md'));
-      const readmeContents = `# ${this.project.seoName}
-${this.project.description}
+      const readmeContents = `# ${project.seoName}
+${project.description}
 `;
       this.fs.write(this.destinationPath('README.md'), readmeContents);
     }
@@ -769,14 +774,14 @@ ${this.project.description}
     this.fs.writeJSON(this.destinationPath('.prettierrc'), { ...prettierJson, printWidth: 120 });
 
     this.fs.copyTpl(this.templatePath(), this.destinationPath(), {
-      jenkinsJob: this.jenkins.job,
-      jenkinsPlaybook: this.jenkins.playbook,
-      jenkinsProjectId: this.jenkins.projectId,
-      language: this.project.language,
-      projectName: this.project.name,
-      proxyDir: this.project.apiProxyDir,
-      seoProjectName: this.project.seoName,
-      subdomain: this.project.subdomain,
+      jenkinsJob: jenkins.job,
+      jenkinsPlaybook: jenkins.playbook,
+      jenkinsProjectId: jenkins.projectId,
+      language: project.language,
+      projectName: project.name,
+      proxyDir: project.apiProxyDir,
+      seoProjectName: project.seoName,
+      subdomain: project.subdomain,
     });
 
     this.fs.copy(this.templatePath('.*'), this.destinationPath());

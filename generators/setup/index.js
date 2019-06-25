@@ -17,6 +17,10 @@ const { nonEmptyString, githubUsername } = validators;
  * Prompts for Github repo details
  */
 module.exports = class SetupGenerator extends BaseGenerator {
+  initializing() {
+    this.reEnterGithubCreds = false;
+  }
+
   async prompting() {
     await this._determineSetupState();
   }
@@ -49,6 +53,8 @@ module.exports = class SetupGenerator extends BaseGenerator {
       ]));
     }
 
+    const githubCfg = this.config.get('github');
+
     if (useRepo) {
       const github = await this.prompt([
         {
@@ -59,14 +65,14 @@ module.exports = class SetupGenerator extends BaseGenerator {
         {
           name: 'username',
           message: 'Github user/account name:',
-          default: this.github.username,
+          default: githubCfg.username,
           validate: githubUsername,
         },
         {
           name: 'autoCommit',
           type: 'confirm',
           message: 'Do you want the generator to push the initial commit?',
-          default: this.github.autoCommit,
+          default: githubCfg.autoCommit,
         },
       ]);
 
@@ -100,13 +106,15 @@ module.exports = class SetupGenerator extends BaseGenerator {
       } else {
         this.log(`  Checking for repository... ${logSymbols.success}`);
 
-        this.github = github;
-        this.github.url = sshEnabled ? sshURL : gitURL;
+        const githubUrl = sshEnabled ? sshURL : gitURL;
+        this.config.set('github', { ...github, url: githubUrl });
 
         await this._getBoilerplateTags();
       }
     } else {
-      this.github.autoCommit = false;
+      const github = this.config.get('github');
+      this.config.set('github', { ...github, autoCommit: false });
+
       await this._getBoilerplateTags();
     }
   }
@@ -155,6 +163,9 @@ module.exports = class SetupGenerator extends BaseGenerator {
       },
     ]);
 
-    this.github.tag = choices.find(({ tagStr }) => tagStr === tag);
+    const github = this.config.get('github');
+    const ghTag = choices.find(({ tagStr }) => tagStr === tag);
+
+    this.config.set('github', { ...github, tag: ghTag });
   }
 };

@@ -36,6 +36,6 @@ module.exports = class JenkinsGenerator extends BaseGenerator {
       },
     ]);
 
-    this.jenkins = jenkins;
+    this.config.set('jenkins', jenkins);
   }
 };

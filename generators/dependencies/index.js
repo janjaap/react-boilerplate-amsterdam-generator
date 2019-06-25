@@ -15,10 +15,11 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
   }
 
   writing() {
-    this._setDependencies();
+    this._writeDependencies();
   }
 
   async _selectDependencies() {
+    console.log(this.config.get('project'));
     const choices = ['amsterdam-amaps', 'amsterdam-stijl'];
     const { dependencies, useSass } = await this.prompt([
       {
@@ -35,13 +36,11 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
       },
     ]);
 
-    if (dependencies.length) {
-      this.project.runtimeDependencies = this._fetchDepenenciesVersion(dependencies);
-    }
+    const runtimeDependencies = dependencies.length ? this._fetchDepenenciesVersion(dependencies) : [];
+    const devDependencies = useSass ? this._fetchDepenenciesVersion(['node-sass', 'sass-loader']) : [];
+    const project = this.config.get('project');
 
-    if (useSass) {
-      this.project.devDependencies = this._fetchDepenenciesVersion(['node-sass', 'sass-loader']);
-    }
+    this.config.set('project', { ...project, useSass, runtimeDependencies, devDependencies });
   }
 
   /**
@@ -81,7 +80,7 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
    * Appends Enzyme configuration to Jest setup files; react-boilerplate doesn't use Enzyme anymore since
    * version 4.0
    */
-  _setJestConfig() {
+  _writeJestConfig() {
     const configFile = this.destinationPath('jest.config.js');
     const configFileContents = this.fs.read(configFile);
     const reSetupFiles = /(setupFiles:\s*\[[^[]+)(\],)/;
@@ -97,7 +96,7 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
    * Using Dyson as a API proxy, Enzyme for testing, react-router-redux for navigation, scss for styling and leaflet for map
    * layers.
    */
-  _setDependencies() {
+  _writeDependencies() {
     const dependencies = {
       ...this.project.runtimeDependencies,
       leaflet: '^1.4.0',
@@ -120,7 +119,7 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
       devDependencies['enzyme-adapter-react-16'] = '^1.2.0';
       devDependencies['enzyme-to-json'] = '^3.3.5';
 
-      this._setJestConfig();
+      this._writeJestConfig();
     }
 
     this._updatePackageJson({ dependencies, devDependencies });

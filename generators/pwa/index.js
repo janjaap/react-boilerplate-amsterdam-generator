@@ -12,12 +12,23 @@ const { nonEmptyString } = validators;
  * Prompts for Github repo details
  */
 module.exports = class PWAGenerator extends BaseGenerator {
+  initializing() {
+    this.config.set('pwa', {
+      name: '',
+      shortName: '',
+      description: '',
+      backgroundColor: '#ffffff',
+      themeColor: '#ec0000',
+      useManifest: true,
+    });
+  }
+
   async prompting() {
     await this._getPWADetails();
   }
 
   writing() {
-    this._setPWADetails();
+    this._writePWADetails();
   }
 
   async _getPWADetails() {
@@ -37,7 +48,7 @@ module.exports = class PWAGenerator extends BaseGenerator {
     ]);
 
     if (!useManifest) {
-      this.pwa.useManifest = false;
+      this.config.set('pwa', { ...this.config.get('pwa'), useManifest: false });
       return;
     }
 
@@ -72,15 +83,15 @@ module.exports = class PWAGenerator extends BaseGenerator {
       },
     ]);
 
-    this.pwa = pwa;
+    this.config.set('pwa', pwa);
   }
 
   /**
    * Removes the WebpackPwaManifest entry or replaces properties in its declaration in the production
    * Webpack configuration
    */
-  _setPWADetails() {
-    const { useManifest } = this.pwa;
+  _writePWADetails() {
+    const { useManifest, name, shortName, backgroundColor, themeColor, description } = this.pwa;
     const configFile = this.destinationPath('internals/webpack/webpack.prod.babel.js');
     const babelProdContents = this.fs.read(configFile);
     const rePWAPlugin = /new WebpackPwaManifest\(\{[\s\S]+?(?=\}\),)\}\),/;
@@ -88,7 +99,6 @@ module.exports = class PWAGenerator extends BaseGenerator {
     let pluginReplace = '';
 
     if (useManifest) {
-      const { name, shortName, backgroundColor, themeColor, description } = this.pwa;
       const rePWAProp = /^\s*(name|short_name|description|background_color|theme_color):\s*'(.+)',?$/;
       const [plugin] = babelProdContents.match(multilinePluginRegExp);
       const lines = plugin.match(new RegExp(rePWAProp, 'gim'));

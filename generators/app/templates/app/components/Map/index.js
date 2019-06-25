@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import 'leaflet/dist/leaflet.css';
 import 'static/nlmaps.css';
 
-import amaps from '../../static/amaps.iife';
+import amaps from 'amsterdam-amaps/dist/amaps';
 
 import './style.scss';
 

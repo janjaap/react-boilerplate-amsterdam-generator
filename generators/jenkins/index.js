@@ -10,6 +10,14 @@ const { nonEmptyString } = validators;
  * Prompts for Github repo details
  */
 module.exports = class JenkinsGenerator extends BaseGenerator {
+  initializing() {
+    this.config.set('jenkins', {
+      job: '',
+      playbook: '',
+      projectId: '',
+    });
+  }
+
   async prompting() {
     await this._getJenkinsDetails();
   }

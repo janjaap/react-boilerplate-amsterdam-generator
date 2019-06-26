@@ -7,60 +7,6 @@ const childProces = require('child_process');
 const { spawnSync } = childProces;
 
 module.exports = class BaseGenerator extends Generator {
-  constructor(...args) {
-    super(...args);
-
-    this.config.set('github', {
-      autoCommit: true,
-      repository: '',
-      url: '',
-      username: 'Amsterdam',
-      tag: {
-        tagStr: '',
-        hash: '',
-        version: {
-          major: 0,
-          minor: 0,
-          patch: 0,
-        },
-      },
-    });
-
-    this.config.set('project', {
-      author: 'Datapunt Amsterdam',
-      name: '',
-      seoName: '',
-      description: '',
-      license: 'MPL-2.0',
-      version: '0.0.1',
-      language: 'nl',
-      installDependencies: true,
-      runtimeDependencies: {},
-      devDependencies: {},
-      useSass: true,
-    });
-
-    this.config.set('pwa', {
-      name: '',
-      shortName: '',
-      description: '',
-      backgroundColor: '#ffffff',
-      themeColor: '#ec0000',
-      useManifest: true,
-    });
-
-    this.config.set('jenkins', {
-      job: '',
-      playbook: '',
-      projectId: '',
-    });
-
-    // var that is set after entering wrong repo credentials and choosing to re-enter the values
-    // this.reEnterGithubCreds = false;
-
-    this.config.set('packageJson', {});
-  }
-
   _showError(error, bail = false) {
     this._showBrand();
     this.log(
@@ -75,13 +21,16 @@ module.exports = class BaseGenerator extends Generator {
   }
 
   _showInstallSteps(stepNumber = 0) {
+    const projectCfg = this.config.get('project');
+    const githubCfg = this.config.get('github');
+
     const steps = [
       'Cloning react-boilerplate/react-boilerplate',
       'Updating package.json and webpack configuration',
       'Copying template files',
-      this.project.installDependencies && 'Installing dependencies',
-      this.github.autoCommit && 'Running linter and pushing initial commit',
-      `Installation of project '${this.project.seoName}' complete`,
+      projectCfg.installDependencies && 'Installing dependencies',
+      githubCfg.autoCommit && 'Running linter and pushing initial commit',
+      `Installation of project '${projectCfg.seoName}' complete`,
     ].filter(Boolean);
 
     let stepNr = stepNumber;
@@ -127,7 +76,7 @@ module.exports = class BaseGenerator extends Generator {
 
   async _finish() {
     const installSuccessful = await this._installDeps();
-    const commitSuccessful = installSuccessful ? await this._autoCommit() : true;
+    const commitSuccessful = installSuccessful ? this._autoCommit() : true;
 
     if (commitSuccessful) {
       this._end();
@@ -135,14 +84,17 @@ module.exports = class BaseGenerator extends Generator {
   }
 
   _installDeps() {
-    if (this.project.installDependencies) {
+    const projectCfg = this.config.get('project');
+    const githubCfg = this.config.get('github');
+
+    if (projectCfg.installDependencies) {
       this._showBrand();
       this._showInstallSteps(3);
 
       const npmInstall = spawnSync('npm', ['i', '--no-progress', '--no-optional', '--no-audit']);
 
       if (npmInstall.status !== 0) {
-        if (this.github.autoCommit) {
+        if (githubCfg.autoCommit) {
           return this.prompt([
             {
               name: 'continue',
@@ -158,7 +110,7 @@ module.exports = class BaseGenerator extends Generator {
       }
     }
 
-    return this.github.autoCommit;
+    return githubCfg.autoCommit;
   }
 
   _autoCommit() {

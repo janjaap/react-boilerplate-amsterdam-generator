@@ -19,6 +19,21 @@ const { nonEmptyString, githubUsername } = validators;
 module.exports = class SetupGenerator extends BaseGenerator {
   initializing() {
     this.reEnterGithubCreds = false;
+
+    this.config.set('github', {
+      autoCommit: true,
+      repository: '',
+      url: '',
+      username: 'Amsterdam',
+      tag: {
+        tagStr: '',
+        version: {
+          major: 0,
+          minor: 0,
+          patch: 0,
+        },
+      },
+    });
   }
 
   async prompting() {
@@ -112,8 +127,7 @@ module.exports = class SetupGenerator extends BaseGenerator {
         await this._getBoilerplateTags();
       }
     } else {
-      const github = this.config.get('github');
-      this.config.set('github', { ...github, autoCommit: false });
+      this.config.set('github', { ...githubCfg, autoCommit: false });
 
       await this._getBoilerplateTags();
     }
@@ -138,11 +152,10 @@ module.exports = class SetupGenerator extends BaseGenerator {
     const choices = commitsAndTags
       .reverse()
       .map(line => {
-        const [, hash, tagStr] = line.match(reTagRefs);
+        const [, , tagStr] = line.match(reTagRefs);
         const [major, minor, patch] = tagStr.match(/\d/g);
 
         return {
-          hash,
           tagStr,
           version: {
             major: Number.parseInt(major, 10),
@@ -154,18 +167,18 @@ module.exports = class SetupGenerator extends BaseGenerator {
       .filter(Boolean)
       .slice(0, 5);
 
-    const { tag } = await this.prompt([
+    const { bpTag } = await this.prompt([
       {
-        name: 'tag',
+        name: 'bpTag',
         type: 'list',
         message: 'Choose the react-boilerplate tag you want to base your project on:',
         choices: choices.map(item => item.tagStr),
       },
     ]);
 
-    const github = this.config.get('github');
-    const ghTag = choices.find(({ tagStr }) => tagStr === tag);
+    const githubCfg = this.config.get('github');
+    const tag = choices.find(({ tagStr }) => tagStr === bpTag);
 
-    this.config.set('github', { ...github, tag: ghTag });
+    this.config.set('github', { ...githubCfg, tag });
   }
 };

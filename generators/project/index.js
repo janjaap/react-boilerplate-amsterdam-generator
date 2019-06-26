@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 const chalk = require('chalk');
+const merge = require('deepmerge');
 
 const BaseGenerator = require('../base');
 const validators = require('../app/validators');
@@ -14,6 +15,25 @@ const { nonEmptyString, noSpacesString, semverRegex, languageCode, subdomain } =
  * Prompts for Github repo details
  */
 module.exports = class ProjectGenerator extends BaseGenerator {
+  initializing() {
+    this.config.set('project', {
+      apiProxyDir: '',
+      author: 'Datapunt Amsterdam',
+      dependencies: {},
+      description: '',
+      devDependencies: {},
+      installDependencies: true,
+      language: 'nl',
+      license: 'MPL-2.0',
+      name: '',
+      seoName: '',
+      subdomain: '',
+      truncateReadme: true,
+      useSass: true,
+      version: '0.0.1',
+    });
+  }
+
   async prompting() {
     await this._getProjectDetails();
   }
@@ -28,6 +48,8 @@ module.exports = class ProjectGenerator extends BaseGenerator {
       'Project parameters',
       'Used for package.json properties, constants values and template files value replacements',
     );
+
+    const projectCfg = this.config.get('project');
 
     const project = await this.prompt([
       {
@@ -44,7 +66,7 @@ module.exports = class ProjectGenerator extends BaseGenerator {
       {
         name: 'version',
         message: 'Version:',
-        default: this.project.version,
+        default: projectCfg.version,
         validate: semverRegex,
       },
       {
@@ -54,17 +76,17 @@ module.exports = class ProjectGenerator extends BaseGenerator {
       {
         name: 'author',
         message: 'Author',
-        default: this.project.author,
+        default: projectCfg.author,
       },
       {
         name: 'license',
         message: 'License:',
-        default: this.project.license,
+        default: projectCfg.license,
       },
       {
         name: 'language',
         message: `Language ${chalk.reset.dim.white('(ISO 639-1)')}:`,
-        default: this.project.language,
+        default: projectCfg.language,
         validate: languageCode,
         filter: toLowerCase,
       },
@@ -97,13 +119,27 @@ module.exports = class ProjectGenerator extends BaseGenerator {
   }
 
   _writeProjectDetails() {
-    const projectDetails = {
-      ...this.config.get('project'),
-      repository: {
-        url: this.github.url,
-      },
+    const projectCfg = this.config.get('project');
+    const packageJsonCfg = this.config.get('packageJson');
+    const githubCfg = this.config.get('github');
+    const { url } = githubCfg;
+    const repository = {
+      url,
     };
 
-    this._updatePackageJson(projectDetails);
+    const {
+      apiProxyDir,
+      seoName,
+      installDependencies,
+      useSass,
+      subdomain: subDomain,
+      truncateReadme,
+      ...merged
+    } = merge(packageJsonCfg, {
+      ...projectCfg,
+      repository,
+    });
+
+    this.config.set('packageJson', merged);
   }
 };

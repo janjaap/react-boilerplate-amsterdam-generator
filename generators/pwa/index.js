@@ -52,17 +52,20 @@ module.exports = class PWAGenerator extends BaseGenerator {
       return;
     }
 
+    const projectCfg = this.config.get('project');
+    const pwaCfg = this.config.get('pwa');
+
     const pwa = await this.prompt([
       {
         name: 'name',
         message: 'Name:',
-        default: this.project.seoName,
+        default: projectCfg.seoName,
         validate: nonEmptyString,
       },
       {
         name: 'shortName',
         message: 'Short name:',
-        default: this.project.name,
+        default: projectCfg.name,
         validate: nonEmptyString,
       },
       {
@@ -72,13 +75,13 @@ module.exports = class PWAGenerator extends BaseGenerator {
       {
         name: 'backgroundColor',
         message: 'Background color:',
-        default: this.pwa.backgroundColor,
+        default: pwaCfg.backgroundColor,
         validate: nonEmptyString,
       },
       {
         name: 'themeColor',
         message: 'Theme color:',
-        default: this.pwa.themeColor,
+        default: pwaCfg.themeColor,
         validate: nonEmptyString,
       },
     ]);
@@ -91,7 +94,8 @@ module.exports = class PWAGenerator extends BaseGenerator {
    * Webpack configuration
    */
   _writePWADetails() {
-    const { useManifest, name, shortName, backgroundColor, themeColor, description } = this.pwa;
+    const pwaCfg = this.config.get('pwa');
+    const { useManifest, name, shortName, backgroundColor, themeColor, description } = pwaCfg;
     const configFile = this.destinationPath('internals/webpack/webpack.prod.babel.js');
     const babelProdContents = this.fs.read(configFile);
     const rePWAPlugin = /new WebpackPwaManifest\(\{[\s\S]+?(?=\}\),)\}\),/;

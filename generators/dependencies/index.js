@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 const fetch = require('node-fetch');
 const fs = require('fs');
+const merge = require('deepmerge');
 
 const BaseGenerator = require('../base');
 
@@ -14,16 +15,15 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
     await this._selectDependencies();
   }
 
-  writing() {
-    this._writeDependencies();
+  async writing() {
+    await this._writeDependencies();
   }
 
   async _selectDependencies() {
-    console.log(this.config.get('project'));
     const choices = ['amsterdam-amaps', 'amsterdam-stijl'];
-    const { dependencies, useSass } = await this.prompt([
+    const { runtimeDependencies, useSass } = await this.prompt([
       {
-        name: 'dependencies',
+        name: 'runtimeDependencies',
         type: 'checkbox',
         message: 'Select which (run-time) dependencies you want to have installed:',
         choices,
@@ -36,21 +36,23 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
       },
     ]);
 
-    const runtimeDependencies = dependencies.length ? this._fetchDepenenciesVersion(dependencies) : [];
-    const devDependencies = useSass ? this._fetchDepenenciesVersion(['node-sass', 'sass-loader']) : [];
-    const project = this.config.get('project');
+    const dependencies = runtimeDependencies.length ? this._fetchDependenciesVersion(runtimeDependencies) : [];
+    const devDependencies = useSass ? this._fetchDependenciesVersion(['node-sass', 'sass-loader']) : [];
+    const projectCfg = this.config.get('project');
 
-    this.config.set('project', { ...project, useSass, runtimeDependencies, devDependencies });
+    this.config.set('project', { ...projectCfg, useSass, dependencies, devDependencies });
   }
 
   /**
+   * Loops through a list of NPM package names and retrieves their latest version. If a version cannot be found, asterisk is used.
    *
    * @param {String[]} dependencies - list of package names
    * @param {Boolean} [useCaretMatcher=true] - when false, will set explicit dependency version as opposed to minor version match
    */
-  async _fetchDepenenciesVersion(dependencies, useCaretMatcher = true) {
+  async _fetchDependenciesVersion(dependencies, useCaretMatcher = true) {
     const depsObj = {};
 
+    // disabling linter; using forEach doesn't work with await construct
     // eslint-disable-next-line no-restricted-syntax
     for (const name of dependencies) {
       try {
@@ -64,16 +66,54 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
             },
           } = packageDetails;
 
-          // eslint-disable-next-line no-param-reassign
           depsObj[name] = useCaretMatcher ? `^${version}` : version;
         }
       } catch (error) {
-        // eslint-disable-next-line no-param-reassign
         depsObj[name] = '*';
       }
     }
 
     return depsObj;
+  }
+
+  /**
+   * Adding Amsterdam-specific dependencies
+   * Using Dyson as a API proxy, Enzyme for testing, react-router-redux for navigation, scss for styling and leaflet for map
+   * layers.
+   */
+  async _writeDependencies() {
+    const projectCfg = this.config.get('project');
+    const githubCfg = this.config.get('github');
+
+    const dependencies = merge(projectCfg.dependencies, await this._fetchDependenciesVersion(['leaflet', 'proj4']));
+
+    // applying a different set of dependencies for the react-boilerplate that contains backwards
+    // incompatible changes
+    const enzymeDeps =
+      githubCfg.tag.version.major === 4
+        ? await this._fetchDependenciesVersion(['enzyme', 'enzyme-adapter-react-16', 'enzyme-to-json'])
+        : {};
+
+    const devDependencies = merge(
+      projectCfg.devDependencies,
+      await this._fetchDependenciesVersion([
+        'babel-plugin-inline-react-svg',
+        'dyson-generators',
+        'dyson-image',
+        'npm-run-all',
+        'dyson',
+      ]),
+      enzymeDeps,
+    );
+
+    if (githubCfg.tag.version.major === 4) {
+      this._writeJestConfig();
+    }
+
+    const packageJson = this.config.get('packageJson');
+    const merged = merge(packageJson, { dependencies, devDependencies });
+
+    this.config.set('packageJson', merged);
   }
 
   /**
@@ -89,39 +129,5 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
 
     fs.unlinkSync(configFile);
     this.fs.write(configFile, configWithEnzymeSetup);
-  }
-
-  /**
-   * Adding Amsterdam-specific dependencies
-   * Using Dyson as a API proxy, Enzyme for testing, react-router-redux for navigation, scss for styling and leaflet for map
-   * layers.
-   */
-  _writeDependencies() {
-    const dependencies = {
-      ...this.project.runtimeDependencies,
-      leaflet: '^1.4.0',
-      proj4: '^2.5.0',
-    };
-
-    const devDependencies = {
-      ...this.project.devDependencies,
-      'babel-plugin-inline-react-svg': '^0.5.4',
-      'dyson-generators': '^0.2.0',
-      'dyson-image': '^0.2.0',
-      'npm-run-all': '^4.0.5',
-      dyson: '^2.0.3',
-    };
-
-    // applying a different set of dependencies for the react-boilerplate that contains backwards
-    // incompatible changes
-    if (this.github.tag.version.major === 4) {
-      devDependencies.enzyme = '^3.9.0';
-      devDependencies['enzyme-adapter-react-16'] = '^1.2.0';
-      devDependencies['enzyme-to-json'] = '^3.3.5';
-
-      this._writeJestConfig();
-    }
-
-    this._updatePackageJson({ dependencies, devDependencies });
   }
 };

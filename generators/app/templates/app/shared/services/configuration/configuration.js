@@ -46,6 +46,4 @@ const CONFIGURATION = {
   ...globalConfig,
 };
 
-// console.log('environment configuration', CONFIGURATION); // eslint-disable-line no-console
-
 export default CONFIGURATION;

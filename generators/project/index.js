@@ -29,7 +29,6 @@ module.exports = class ProjectGenerator extends BaseGenerator {
       seoName: '',
       subdomain: '',
       truncateReadme: true,
-      useSass: true,
       version: '0.0.1',
     });
   }
@@ -127,18 +126,11 @@ module.exports = class ProjectGenerator extends BaseGenerator {
       url,
     };
 
-    const {
-      apiProxyDir,
-      seoName,
-      installDependencies,
-      useSass,
-      subdomain: subDomain,
-      truncateReadme,
-      ...merged
-    } = merge(packageJsonCfg, {
-      ...projectCfg,
+    const { apiProxyDir, seoName, installDependencies, subdomain: subDomain, truncateReadme, ...merged } = merge.all([
+      projectCfg,
       repository,
-    });
+      packageJsonCfg,
+    ]);
 
     this.config.set('packageJson', merged);
   }

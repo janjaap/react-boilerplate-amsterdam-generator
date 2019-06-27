@@ -11,36 +11,8 @@ const BaseGenerator = require('../base');
  * Prompts for Github repo details
  */
 module.exports = class DependenciesGenerator extends BaseGenerator {
-  async prompting() {
-    await this._selectDependencies();
-  }
-
   async writing() {
     await this._writeDependencies();
-  }
-
-  async _selectDependencies() {
-    const choices = ['amsterdam-amaps', 'amsterdam-stijl'];
-    const { runtimeDependencies, useSass } = await this.prompt([
-      {
-        name: 'runtimeDependencies',
-        type: 'checkbox',
-        message: 'Select which (run-time) dependencies you want to have installed:',
-        choices,
-      },
-      {
-        name: 'useSass',
-        type: 'confirm',
-        message: 'Do you want SASS support for this project?',
-        default: true,
-      },
-    ]);
-
-    const dependencies = runtimeDependencies.length ? this._fetchDependenciesVersion(runtimeDependencies) : [];
-    const devDependencies = useSass ? this._fetchDependenciesVersion(['node-sass', 'sass-loader']) : [];
-    const projectCfg = this.config.get('project');
-
-    this.config.set('project', { ...projectCfg, useSass, dependencies, devDependencies });
   }
 
   /**
@@ -94,17 +66,15 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
         ? await this._fetchDependenciesVersion(['enzyme', 'enzyme-adapter-react-16', 'enzyme-to-json'])
         : {};
 
-    const devDependencies = merge(
-      projectCfg.devDependencies,
-      await this._fetchDependenciesVersion([
-        'babel-plugin-inline-react-svg',
-        'dyson-generators',
-        'dyson-image',
-        'npm-run-all',
-        'dyson',
-      ]),
-      enzymeDeps,
-    );
+    const adamDeps = await this._fetchDependenciesVersion([
+      'babel-plugin-inline-react-svg',
+      'dyson-generators',
+      'dyson-image',
+      'npm-run-all',
+      'dyson',
+    ]);
+
+    const devDependencies = merge.all([projectCfg.devDependencies, adamDeps, enzymeDeps]);
 
     if (githubCfg.tag.version.major === 4) {
       this._writeJestConfig();

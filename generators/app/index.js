@@ -15,8 +15,8 @@ module.exports = class App extends BaseGenerator {
     this.config.set('packageJson', {});
 
     this.composeWith(require.resolve('../setup'));
-    this.composeWith(require.resolve('../dependencies'));
     this.composeWith(require.resolve('../project'));
+    this.composeWith(require.resolve('../dependencies'));
     this.composeWith(require.resolve('../jenkins'));
     this.composeWith(require.resolve('../pwa'));
 
@@ -69,13 +69,13 @@ module.exports = class App extends BaseGenerator {
 
     this._setScripts();
     this._writeWebpackRules();
-    this._writePackageJson();
   }
 
   end() {
     this._showBrand();
     this._showInstallSteps(2);
 
+    this._writePackageJson();
     this._copyTemplateFiles();
   }
 
@@ -136,25 +136,19 @@ module.exports = class App extends BaseGenerator {
 
     const rulesProp = 'rules: [';
     const endOfFileSequence = '});';
-
     const babelConfig = this.fs.read(configFile);
 
-    let cfgExtended = babelConfig.replace(endOfFileSequence, `${externals}${endOfFileSequence}`);
-
-    const projectCfg = this.config.get('project');
-
-    if (projectCfg.useSass) {
-      /* eslint-disable no-useless-escape */
-      const sassRule = `
-        {
-          test: /\.scss$/,
-          use: ['style-loader', 'css-loader', 'sass-loader'],
-        },
+    /* eslint-disable no-useless-escape */
+    const sassRule = `
+      {
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
 `;
-      /* eslint-ensable no-useless-escape */
-
-      cfgExtended = cfgExtended.replace(rulesProp, `${rulesProp}${sassRule}`);
-    }
+    /* eslint-ensable no-useless-escape */
+    const cfgExtended = babelConfig
+      .replace(endOfFileSequence, `${externals}${endOfFileSequence}`)
+      .replace(rulesProp, `${rulesProp}${sassRule}`);
 
     fs.unlinkSync(configFile);
     this.fs.write(configFile, cfgExtended);
@@ -190,6 +184,8 @@ module.exports = class App extends BaseGenerator {
     fs.unlinkSync(this.destinationPath('app/i18n.js'));
     fs.unlinkSync(this.destinationPath('server/index.js'));
     fs.unlinkSync(this.destinationPath('server/logger.js'));
+    fs.unlinkSync(this.destinationPath('CONTRIBUTIONS.md'));
+    fs.unlinkSync(this.destinationPath('CODE_OF_CONDUCT.md'));
 
     const project = this.config.get('project');
     const jenkins = this.config.get('jenkins');

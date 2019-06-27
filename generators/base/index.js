@@ -41,7 +41,7 @@ module.exports = class BaseGenerator extends Generator {
 
     const stepLines = steps
       .map((step, index) => {
-        const complete = index <= stepNumber ? ` ${chalk(logSymbols.success)}` : '...';
+        const complete = index < stepNumber ? ` ${chalk(logSymbols.success)}` : '...';
         const stepLine = ` ${index + 1}. ${step}${complete}`;
         let color = index === stepNr ? chalk.yellow : chalk.dim.yellow;
 

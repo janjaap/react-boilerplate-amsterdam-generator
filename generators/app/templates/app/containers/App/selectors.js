@@ -1,58 +1,55 @@
 import { createSelector } from 'reselect';
+import { initialState, initialRouteState } from './reducer';
 
-const selectGlobal = state => state.global;
+export const selectGlobal = state => (state && state.global) || initialState;
+export const selectRoute = state => (state && state.route) || initialRouteState;
 
-const selectRoute = state => state.route;
-
-const makeSelectUserName = () =>
-  createSelector(
-    selectGlobal,
-    globalState => globalState.userName,
-  );
-
-const makeSelectAccessToken = () =>
-  createSelector(
-    selectGlobal,
-    globalState => globalState.accessToken,
-  );
-
-const makeSelectLoading = () =>
-  createSelector(
-    selectGlobal,
-    globalState => globalState.loading,
-  );
-
-const makeSelectError = () =>
-  createSelector(
-    selectGlobal,
-    globalState => globalState.error,
-  );
-
-const makeSelectErrorMessage = () =>
-  createSelector(
-    selectGlobal,
-    globalState => globalState.errorMessage,
-  );
-
-const makeSelectLocation = () =>
-  createSelector(
-    selectRoute,
-    routeState => routeState.location,
-  );
-
-const makeSelectIsAuthenticated = () =>
-  createSelector(
-    selectGlobal,
-    globalState => !globalState.accessToken === false,
-  );
-
-export {
+export const makeSelectStatus = createSelector(
   selectGlobal,
-  makeSelectUserName,
-  makeSelectAccessToken,
-  makeSelectLoading,
-  makeSelectError,
-  makeSelectErrorMessage,
-  makeSelectLocation,
-  makeSelectIsAuthenticated,
-};
+  ({ status }) => status,
+);
+
+export const makeSelectUserName = createSelector(
+  selectGlobal,
+  ({ userName }) => userName,
+);
+
+export const makeSelectAccessToken = createSelector(
+  selectGlobal,
+  ({ accessToken }) => accessToken,
+);
+
+export const makeSelectLoading = createSelector(
+  selectGlobal,
+  ({ loading }) => loading,
+);
+
+export const makeSelectError = createSelector(
+  selectGlobal,
+  ({ error }) => error,
+);
+
+export const makeSelectErrorMessage = createSelector(
+  selectGlobal,
+  ({ errorMessage }) => errorMessage,
+);
+
+export const makeSelectLocation = createSelector(
+  selectRoute,
+  ({ location }) => location,
+);
+
+export const makeSelectIsAuthenticated = createSelector(
+  selectGlobal,
+  ({ accessToken }) => !!accessToken,
+);
+
+export const makeSelectProgress = createSelector(
+  selectGlobal,
+  ({ progress }) => progress,
+);
+
+export const makeSelectErrorEventId = createSelector(
+  selectGlobal,
+  ({ errorEventId }) => errorEventId,
+);

@@ -14,8 +14,6 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import FontFaceObserver from 'fontfaceobserver';
-import moment from 'moment';
-import 'moment/src/locale/nl';
 import history from 'utils/history';
 import 'leaflet/dist/leaflet';
 import { authenticate } from 'shared/services/auth/auth';
@@ -44,8 +42,6 @@ const openSansObserver = new FontFaceObserver('Open Sans', {});
 openSansObserver.load().then(() => {
   document.body.classList.add('fontLoaded');
 });
-
-moment.locale('<%= language %>');
 
 // Create redux store with history
 const initialState = {};

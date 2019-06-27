@@ -61,6 +61,7 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
       await this._fetchDependenciesVersion([
         '@datapunt/asc-assets',
         '@datapunt/asc-ui',
+        '@sentry/browser',
         'amsterdam-amaps',
         'leaflet',
         'proj4',
@@ -75,16 +76,19 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
         ? await this._fetchDependenciesVersion(['enzyme', 'enzyme-adapter-react-16', 'enzyme-to-json'])
         : {};
 
-    const adamDeps = await this._fetchDependenciesVersion([
+    const adamDevDeps = await this._fetchDependenciesVersion([
+      '@svgr/webpack',
       'babel-plugin-inline-react-svg',
       'dyson-generators',
       'dyson-image',
-      'jest-localstorage-mock',
-      'npm-run-all',
       'dyson',
+      'jest-localstorage-mock',
+      'node-sass',
+      'npm-run-all',
+      'sass-loader',
     ]);
 
-    const devDependencies = merge.all([projectCfg.devDependencies, adamDeps, enzymeDeps]);
+    const devDependencies = merge.all([projectCfg.devDependencies, adamDevDeps, enzymeDeps]);
     const packageJson = this.config.get('packageJson');
     const merged = merge(packageJson, { dependencies, devDependencies });
 

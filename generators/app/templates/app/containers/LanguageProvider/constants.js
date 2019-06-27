@@ -1,4 +1,4 @@
 /**
  * LanguageProvider constants
  */
-export const CHANGE_LOCALE = '<%= projectName %>/App/LanguageToggle/CHANGE_LOCALE';
+export const CHANGE_LOCALE = 'registraties/App/LanguageToggle/CHANGE_LOCALE';

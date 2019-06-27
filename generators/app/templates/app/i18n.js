@@ -41,7 +41,7 @@ const translationMessages = {
   nl: formatTranslationMessages('nl', nlTranslationMessages),
 };
 
-const scope = '<%= projectName >';
+const scope = '<%= projectName %>';
 
 exports.appLocales = appLocales;
 exports.formatTranslationMessages = formatTranslationMessages;

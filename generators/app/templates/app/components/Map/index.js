@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import 'leaflet/dist/leaflet.css';
-import 'static/nlmaps.css';
+import 'amsterdam-amaps/dist/nlmaps/dist/assets/css/nlmaps.css';
 
 import amaps from 'amsterdam-amaps/dist/amaps';
 

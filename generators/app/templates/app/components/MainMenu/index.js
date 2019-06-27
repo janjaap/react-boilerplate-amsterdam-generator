@@ -34,7 +34,7 @@ MainMenu.propTypes = {
 };
 
 export const mapStateToProps = createStructuredSelector({
-  isAuthenticated: makeSelectIsAuthenticated(),
+  isAuthenticated: makeSelectIsAuthenticated,
 });
 
 const withConnect = connect(

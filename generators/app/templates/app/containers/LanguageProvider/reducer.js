@@ -3,9 +3,7 @@
  * LanguageProvider reducer
  *
  */
-
 import produce from 'immer';
-
 import { CHANGE_LOCALE } from './constants';
 import { DEFAULT_LOCALE } from '../../i18n';
 
@@ -19,7 +17,6 @@ const languageProviderReducer = (state = initialState, action) =>
     switch (action.type) {
       case CHANGE_LOCALE:
         draft.locale = action.locale;
-        break;
     }
   });
 

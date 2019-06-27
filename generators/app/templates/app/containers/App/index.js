@@ -1,15 +1,15 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-import { compose } from 'redux';
+import { ThemeProvider } from '@datapunt/asc-ui';
 
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
 
-import Map from 'containers/MapContainer';
+import Map from 'containers/Map';
 import NotFoundPage from 'containers/NotFoundPage';
 import Footer from 'components/Footer';
 import MainMenu from 'components/MainMenu';
-import HeaderContainer from 'containers/HeaderContainer';
+import HeaderContainer from 'containers/Header';
 import GlobalError from 'containers/GlobalError';
 
 import reducer from './reducer';
@@ -24,27 +24,29 @@ export const App = () => {
   useInjectSaga({ key, saga });
 
   return (
-    <div className="container app-container">
-      <GlobalError />
-      <div className="container">
-        <HeaderContainer />
-      </div>
-      <div className="container-fluid">
-        <MainMenu />
-      </div>
-      <div className="content container">
-        <Switch>
-          <Route exact path="/" component={Map} />
-          <Route path="" component={NotFoundPage} />
-        </Switch>
-      </div>
-      <div className="container-fluid">
-        <Footer />
-      </div>
+    <ThemeProvider>
+      <div className="container app-container">
+        <GlobalError />
+        <div className="container">
+          <HeaderContainer />
+        </div>
+        <div className="container-fluid">
+          <MainMenu />
+        </div>
+        <div className="content container">
+          <Switch>
+            <Route exact path="/" component={Map} />
+            <Route path="" component={NotFoundPage} />
+          </Switch>
+        </div>
+        <div className="container-fluid">
+          <Footer />
+        </div>
 
-      <GlobalStyles />
-    </div>
+        <GlobalStyles />
+      </div>
+    </ThemeProvider>
   );
 };
 
-export default compose(memo)(App);
+export default App;

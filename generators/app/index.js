@@ -182,6 +182,7 @@ module.exports = class App extends BaseGenerator {
     fs.unlinkSync(this.destinationPath('app/index.html'));
     fs.unlinkSync(this.destinationPath('app/app.js'));
     fs.unlinkSync(this.destinationPath('app/i18n.js'));
+    fs.unlinkSync(this.destinationPath('app/translations/en.json'));
     fs.unlinkSync(this.destinationPath('server/index.js'));
     fs.unlinkSync(this.destinationPath('server/logger.js'));
     fs.unlinkSync(this.destinationPath('jest.config.js'));

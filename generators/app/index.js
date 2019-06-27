@@ -184,7 +184,8 @@ module.exports = class App extends BaseGenerator {
     fs.unlinkSync(this.destinationPath('app/i18n.js'));
     fs.unlinkSync(this.destinationPath('server/index.js'));
     fs.unlinkSync(this.destinationPath('server/logger.js'));
-    fs.unlinkSync(this.destinationPath('CONTRIBUTIONS.md'));
+    fs.unlinkSync(this.destinationPath('jest.config.js'));
+    fs.unlinkSync(this.destinationPath('CONTRIBUTING.md'));
     fs.unlinkSync(this.destinationPath('CODE_OF_CONDUCT.md'));
 
     const project = this.config.get('project');
@@ -203,7 +204,11 @@ ${project.description}
 
     this.fs.writeJSON(this.destinationPath('.prettierrc'), { ...prettierJson, printWidth: 120 });
 
+    const today = new Date();
+    const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+
     this.fs.copyTpl(this.templatePath(), this.destinationPath(), {
+      date,
       jenkinsJob: jenkins.job,
       jenkinsPlaybook: jenkins.playbook,
       jenkinsProjectId: jenkins.projectId,

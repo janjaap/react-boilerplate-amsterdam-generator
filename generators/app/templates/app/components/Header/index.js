@@ -1,84 +1,117 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { intlShape } from 'react-intl';
+
 import CONFIGURATION from 'shared/services/configuration/configuration';
+import LoginIcon from '@datapunt/asc-assets/lib/Icons/Login.svg';
+import LogoutIcon from '@datapunt/asc-assets/lib/Icons/Logout.svg';
+import { Header as HeaderComponent } from '@datapunt/asc-ui';
+import messages from './messages';
 
-import './style.scss';
-import LogoSvg from '../../../node_modules/amsterdam-stijl/dist/images/logos/andreas.svg';
-import LogoPng from '../../../node_modules/amsterdam-stijl/dist/images/logos/andreas.png';
-import LogoPrint from '../../../node_modules/amsterdam-stijl/dist/images/logos/andreas-print.png';
+const StyledHeader = styled(HeaderComponent)`
+  max-width: 1080px;
+  margin: 0 auto;
 
-const Header = ({ isAuthenticated, userName, onLoginLogoutButtonClick }) => (
-  <div className="header-component has_header_modern no-print">
-    <div className="row header-wrapper">
-      <div className="col-sm-6 grid-header-logo">
-        <h1 className="sitelogo">
-          <a className="mainlogo" href={CONFIGURATION.ROOT}>
-            <span className="logoset">
-              <img src={LogoSvg} className="screen-logo" alt="Gemeente Amsterdam" />
-              <img src={LogoPng} className="alt-logo" alt="Gemeente Amsterdam" />
-              <img src={LogoPrint} className="print-logo" alt="Gemeente Amsterdam" />
-            </span>
-            <span className="logotexts">
-              <span className="logotext red">Gemeente</span>
-              <span className="logotext red">Amsterdam</span>
-            </span>
-          </a>
-        </h1>
-        <span className="header-title"><%= seoProjectName %></span>
-      </div>
-      <div className="col-sm-6">
-        <nav>
-          <ul className="links">
+  a {
+    line-height: normal;
+  }
+
+  h1 {
+    padding: 0 !important;
+
+    a {
+      font-weight: normal !important;
+    }
+  }
+`;
+
+const HeaderWrapper = styled.div`
+  position: relative;
+  z-index: 2;
+
+  @media (min-width: 1200px) {
+    z-index: 0;
+  }
+`;
+
+const StyledNav = styled.nav`
+  position: absolute;
+  top: 5px;
+  right: 20px;
+  z-index: 101;
+
+  button {
+    appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+
+    @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+      height: 30px;
+    }
+
+    & > * {
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    &:hover,
+    &:focus {
+      color: #ec0000;
+      text-decoration: underline;
+
+      svg {
+        fill: #ec0000;
+      }
+    }
+  }
+
+  @media (max-width: 720px) {
+    right: 0;
+
+    .login-adw,
+    span {
+      display: none;
+    }
+  }
+`;
+
+const Header = ({ isAuthenticated, intl, onLoginLogoutButtonClick }) => (
+  <HeaderWrapper data-testid="site-header">
+    <StyledHeader title="Registraties" homeLink={CONFIGURATION.ROOT} tall>
+      <StyledNav className="no-print">
+        <ul className="links horizontal">
+          {isAuthenticated ? (
             <li>
-              <span>
-                {isAuthenticated && 'Ingelogd als: '}
-                <b>{userName}</b>
-              </span>
+              <button type="button" onClick={onLoginLogoutButtonClick}>
+                <LogoutIcon focusable="false" width={20} />
+                <span>{intl.formatMessage(messages.log_out)}</span>
+              </button>
             </li>
-            {!isAuthenticated ? (
-              <li>
-                <button type="button" onClick={event => onLoginLogoutButtonClick(event, 'datapunt')}>
-                  {'Inloggen'}
-                </button>
-              </li>
-            ) : (
-              ''
-            )}
-            {!isAuthenticated ? (
-              <li>
-                <button type="button" onClick={event => onLoginLogoutButtonClick(event, 'grip')}>
-                  {'Inloggen ADW'}
-                </button>
-              </li>
-            ) : (
-              ''
-            )}
-            {isAuthenticated ? (
-              <li>
-                <button type="button" onClick={onLoginLogoutButtonClick}>
-                  {'Uitloggen'}
-                </button>
-              </li>
-            ) : (
-              ''
-            )}
-          </ul>
-        </nav>
-      </div>
-    </div>
-  </div>
+          ) : (
+            <li>
+              <button className="login" type="button" onClick={event => onLoginLogoutButtonClick(event, 'datapunt')}>
+                <LoginIcon focusable="false" width={20} />
+                <span>{intl.formatMessage(messages.log_in)}</span>
+              </button>
+            </li>
+          )}
+        </ul>
+      </StyledNav>
+    </StyledHeader>
+  </HeaderWrapper>
 );
-
-Header.propTypes = {
-  isAuthenticated: PropTypes.bool,
-  onLoginLogoutButtonClick: PropTypes.func,
-  userName: PropTypes.string,
-};
 
 Header.defaultProps = {
   isAuthenticated: false,
   onLoginLogoutButtonClick: undefined,
-  userName: '',
+};
+
+Header.propTypes = {
+  isAuthenticated: PropTypes.bool,
+  intl: intlShape.isRequired,
+  onLoginLogoutButtonClick: PropTypes.func,
 };
 
 export default Header;

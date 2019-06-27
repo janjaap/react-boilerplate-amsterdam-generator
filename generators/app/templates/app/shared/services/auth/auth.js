@@ -1,8 +1,7 @@
-/* eslint-disable no-restricted-globals */
 /**
  * @jest-environment jsdom
  */
-
+import history from 'utils/history';
 import queryStringParser from './services/query-string-parser/query-string-parser';
 import stateTokenGenerator from './services/state-token-generator/state-token-generator';
 import accessTokenParser from './services/access-token-parser/access-token-parser';
@@ -29,42 +28,49 @@ const ERROR_MESSAGES = {
 // success
 const AUTH_PARAMS = ['access_token', 'token_type', 'expires_in', 'state'];
 
-// All the scopes this City Daty frontend needs for communication with
-// the backend APIs
-const scopes = [
-  // Signals
-  'SIG/ALL',
+export const scopes = [
+  // Kadaster
+  // Alle attributen van een kadastraal niet-natuurlijk subject,
+  // inclusief alle rechten op kadastrale objecten
+  'BRK/RS',
+  // Alle atrributen van een kadastraal subject (natuurlijk en
+  // niet-natuurlijk), inclusief alle rechten op kadastrale objecten
+  'BRK/RSN',
+  // Alle attributen van een kadastraal object, inclusief koopsom,
+  // koopsom_valuta_code, koopjaar, cultuurcode_onbebouwd,
+  // cultuurcode_bebouwd en zakelijke rechten van de bijbehorende
+  // kadastrale subjecten
+  'BRK/RO',
+  // Handelsregister
+  'HR/R', // Leesrechten
 ];
 
-const domainList = ['datapunt', 'grip'];
+export const clientId = 'registraties';
 
-function getDomain(domain) {
-  // TODO
-  // Add business logic for the GRIP or datapunt indentity provider (for instance by mapping the domain from the url)
-  // ex: parse https://waternet.data.amsterdam.nl, if(waternet) return grip
-  // default value is datapunt
-  return domain || domainList[0];
-}
+export const domainList = ['datapunt', 'grip'];
 
-const encodedScopes = encodeURIComponent(scopes.join(' '));
+export const getDomain = domain => domain || domainList[0];
+
+export const encodedScopes = encodeURIComponent(scopes.join(' '));
+
 // The URI we need to redirect to for communication with the OAuth2
 // authorization service
 export const AUTH_PATH = domain =>
-  `oauth2/authorize?idp_id=${getDomain(domain)}&response_type=token&client_id=sia&scope=${encodedScopes}`;
+  `oauth2/authorize?idp_id=${getDomain(domain)}&response_type=token&client_id=${clientId}&scope=${encodedScopes}`;
 
 // The keys of values we need to store in the session storage
 //
 // `location.pathname` string at the moment we redirect to the
 // OAuth2 authorization service, and need to get back to afterwards
-const RETURN_PATH = 'returnPath';
+export const RETURN_PATH = 'returnPath';
 // The OAuth2 state(token) (OAuth terminology, has nothing to do with
 // our app state), which is a random string
-const STATE_TOKEN = 'stateToken';
+export const STATE_TOKEN = 'stateToken';
 // The access token returned by the OAuth2 authorization service
 // containing user scopes and name
-const ACCESS_TOKEN = 'accessToken';
+export const ACCESS_TOKEN = 'accessToken';
 
-const OAUTH_DOMAIN = 'oauthDomain';
+export const OAUTH_DOMAIN = 'oauthDomain';
 
 let returnPath;
 let tokenData = {};
@@ -76,26 +82,29 @@ let tokenData = {};
  * @param description {string} Error description as returned from the
  * service.
  */
-function handleError(code, description) {
+const handleError = (code, description) => {
   sessionStorage.removeItem(STATE_TOKEN);
+
+  const { protocol, host, pathname } = global.location;
 
   // Remove parameters from the URL, as set by the error callback from the
   // OAuth2 authorization service, to clean up the URL.
-  location.assign(`${location.protocol}//${location.host}${location.pathname}`);
+  global.location.assign(`${protocol}//${host}${pathname}`);
 
   throw new Error(`Authorization service responded with error ${code} [${description}] (${ERROR_MESSAGES[code]})`);
-}
+};
 
 /**
  * Handles errors in case they were returned by the OAuth2 authorization
  * service.
  */
-function catchError() {
-  const params = queryStringParser(location.search);
+export const catchError = () => {
+  const params = queryStringParser(global.location.search);
+
   if (params && params.error) {
     handleError(params.error, params.error_description);
   }
-}
+};
 
 /**
  * Returns the access token from the params specified.
@@ -107,7 +116,7 @@ function catchError() {
  * @return {string} The access token in case the params for a valid callback,
  * null otherwise.
  */
-function getAccessTokenFromParams(params) {
+export const getAccessTokenFromParams = params => {
   if (!params) {
     return null;
   }
@@ -131,14 +140,15 @@ function getAccessTokenFromParams(params) {
   }
 
   return stateTokenValid && paramsValid ? params.access_token : null;
-}
+};
 
 /**
  * Gets the access token and return path, and clears the session storage.
  */
-function handleCallback() {
-  const params = queryStringParser(location.hash);
+export const handleCallback = () => {
+  const params = queryStringParser(global.location.hash);
   const accessToken = getAccessTokenFromParams(params);
+
   if (accessToken) {
     tokenData = accessTokenParser(accessToken);
     sessionStorage.setItem(ACCESS_TOKEN, accessToken);
@@ -146,11 +156,9 @@ function handleCallback() {
     sessionStorage.removeItem(RETURN_PATH);
     sessionStorage.removeItem(STATE_TOKEN);
 
-    // Clean up URL; remove query and hash
-    // https://stackoverflow.com/questions/4508574/remove-hash-from-url
-    history.replaceState('', document.title, window.location.pathname);
+    history.replace(returnPath);
   }
-}
+};
 
 /**
  * Returns the access token from session storage when available.
@@ -168,12 +176,13 @@ export function getOauthDomain() {
 /**
  * Restores the access token from session storage when available.
  */
-function restoreAccessToken() {
+export const restoreAccessToken = () => {
   const accessToken = getAccessToken();
+
   if (accessToken) {
     tokenData = accessTokenParser(accessToken);
   }
-}
+};
 
 /**
  * Redirects to the OAuth2 authorization service.
@@ -189,21 +198,25 @@ export function login(domain) {
     throw new Error('crypto library is not available on the current browser');
   }
 
+  const { protocol, host, pathname } = global.location;
+
   sessionStorage.removeItem(ACCESS_TOKEN);
-  sessionStorage.setItem(RETURN_PATH, location.hash);
+  sessionStorage.setItem(RETURN_PATH, pathname);
   sessionStorage.setItem(STATE_TOKEN, stateToken);
   sessionStorage.setItem(OAUTH_DOMAIN, domain);
 
-  const redirectUri = encodeURIComponent(`${location.protocol}//${location.host}/manage/incidents`);
-  location.assign(
-    `${CONFIGURATION.AUTH_ROOT}${AUTH_PATH(domain)}&state=${encodedStateToken}&redirect_uri=${redirectUri}`,
-  );
+  const redirectUri = encodeURIComponent(`${protocol}//${host}/`);
+  const newLocation = `${CONFIGURATION.AUTH_ROOT}${AUTH_PATH(
+    domain,
+  )}&state=${encodedStateToken}&redirect_uri=${redirectUri}`;
+
+  global.location.assign(newLocation);
 }
 
 export function logout() {
   sessionStorage.removeItem(ACCESS_TOKEN);
   sessionStorage.removeItem(OAUTH_DOMAIN);
-  location.reload();
+  global.location.reload();
 }
 
 /**
@@ -236,11 +249,11 @@ export function isAuthenticated() {
 }
 
 export function getScopes() {
-  return tokenData.scopes || [];
+  return (!!tokenData && tokenData.scopes) || [];
 }
 
 export function getName() {
-  return tokenData.name || '';
+  return (!!tokenData && tokenData.name) || '';
 }
 
 /**
@@ -251,34 +264,26 @@ export function getName() {
  */
 export function getAuthHeaders() {
   const accessToken = getAccessToken();
-  return accessToken ? { Authorization: `Bearer ${getAccessToken()}` } : {};
+  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+}
+
+export function getRequestOptions() {
+  return {
+    headers: getAuthHeaders(),
+  };
 }
 
 export function authenticate() {
-  try {
-    initAuth();
-  } catch (error) {
-    window.Raven.captureMessage(error);
-  }
-
-  returnPath = getReturnPath();
-  if (returnPath) {
-    // Timeout needed because the change is otherwise not being handled in
-    // Firefox browsers. This is possibly due to AngularJS changing the
-    // `location.hash` at the same time.
-    window.setTimeout(() => {
-      location.hash = returnPath;
-    });
-  }
+  initAuth();
 
   const accessToken = getAccessToken();
+
   if (accessToken) {
-    const credentials = {
+    return {
       userName: getName(),
       userScopes: getScopes(),
       accessToken: getAccessToken(),
     };
-    return credentials;
   }
 
   return null;

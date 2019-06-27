@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 const fetch = require('node-fetch');
-const fs = require('fs');
 const merge = require('deepmerge');
 
 const BaseGenerator = require('../base');
@@ -57,12 +56,22 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
     const projectCfg = this.config.get('project');
     const githubCfg = this.config.get('github');
 
-    const dependencies = merge(projectCfg.dependencies, await this._fetchDependenciesVersion(['leaflet', 'proj4']));
+    const dependencies = merge(
+      projectCfg.dependencies,
+      await this._fetchDependenciesVersion([
+        '@datapunt/asc-assets',
+        '@datapunt/asc-ui',
+        'amsterdam-amaps',
+        'leaflet',
+        'proj4',
+        'react-router-redux',
+      ]),
+    );
 
     // applying a different set of dependencies for the react-boilerplate that contains backwards
     // incompatible changes
     const enzymeDeps =
-      githubCfg.tag.version.major === 4
+      githubCfg.tag.version.major >= 4
         ? await this._fetchDependenciesVersion(['enzyme', 'enzyme-adapter-react-16', 'enzyme-to-json'])
         : {};
 
@@ -70,34 +79,15 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
       'babel-plugin-inline-react-svg',
       'dyson-generators',
       'dyson-image',
+      'jest-localstorage-mock',
       'npm-run-all',
       'dyson',
     ]);
 
     const devDependencies = merge.all([projectCfg.devDependencies, adamDeps, enzymeDeps]);
-
-    if (githubCfg.tag.version.major === 4) {
-      this._writeJestConfig();
-    }
-
     const packageJson = this.config.get('packageJson');
     const merged = merge(packageJson, { dependencies, devDependencies });
 
     this.config.set('packageJson', merged);
-  }
-
-  /**
-   * Appends Enzyme configuration to Jest setup files; react-boilerplate doesn't use Enzyme anymore since
-   * version 4.0
-   */
-  _writeJestConfig() {
-    const configFile = this.destinationPath('jest.config.js');
-    const configFileContents = this.fs.read(configFile);
-    const reSetupFiles = /(setupFiles:\s*\[[^[]+)(\],)/;
-    const enzymeSetup = "'<rootDir>/internals/testing/enzyme-setup.js'";
-    const configWithEnzymeSetup = configFileContents.replace(reSetupFiles, `$1, ${enzymeSetup}$2`);
-
-    fs.unlinkSync(configFile);
-    this.fs.write(configFile, configWithEnzymeSetup);
   }
 };

@@ -50,7 +50,7 @@ module.exports = class ProjectGenerator extends BaseGenerator {
 
     const projectCfg = this.config.get('project');
 
-    const project = await this.prompt([
+    const project1 = await this.prompt([
       {
         name: 'name',
         message: `Project name ${chalk.reset.dim.white('(lowercase, no spaces)')}:`,
@@ -89,10 +89,14 @@ module.exports = class ProjectGenerator extends BaseGenerator {
         validate: languageCode,
         filter: toLowerCase,
       },
+    ]);
+
+    const project2 = await this.prompt([
       {
         name: 'subdomain',
         message: `Subdomain ${chalk.reset.dim.white('(<subdomain>.amsterdam.nl)')}:`,
         validate: subdomain,
+        default: project1.name,
         filter: toLowerCase,
       },
       {
@@ -114,7 +118,7 @@ module.exports = class ProjectGenerator extends BaseGenerator {
       },
     ]);
 
-    this.config.set('project', project);
+    this.config.set('project', merge.all([projectCfg, project1, project2]));
   }
 
   _writeProjectDetails() {

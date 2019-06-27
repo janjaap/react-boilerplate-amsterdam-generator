@@ -26,21 +26,26 @@ module.exports = class JenkinsGenerator extends BaseGenerator {
     this._showBrand();
     this._showSectionTitle('Jenkinsfile parameters', 'Required for configuring deployment');
 
+    const projectCfg = this.config.get('project');
+
     const jenkins = await this.prompt([
       {
         name: 'job',
         message: 'Job name:',
         validate: nonEmptyString,
+        default: projectCfg.name,
       },
       {
         name: 'playbook',
         message: 'Playbook:',
         validate: nonEmptyString,
+        default: projectCfg.name,
       },
       {
         name: 'projectId',
         message: 'Project ID:',
         validate: nonEmptyString,
+        default: projectCfg.name,
       },
     ]);
 

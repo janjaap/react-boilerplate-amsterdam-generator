@@ -139,7 +139,12 @@ module.exports = class App extends BaseGenerator {
     const babelConfig = this.fs.read(configFile);
 
     /* eslint-disable no-useless-escape */
-    const sassRule = `
+    const extraRules = `
+      {
+        test: /\.svg$/,
+        exclude: /asc-ui/,
+        use: ['@svgr/webpack'],
+      },
       {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
@@ -148,7 +153,7 @@ module.exports = class App extends BaseGenerator {
     /* eslint-ensable no-useless-escape */
     const cfgExtended = babelConfig
       .replace(endOfFileSequence, `${externals}${endOfFileSequence}`)
-      .replace(rulesProp, `${rulesProp}${sassRule}`);
+      .replace(rulesProp, `${rulesProp}${extraRules}`);
 
     fs.unlinkSync(configFile);
     this.fs.write(configFile, cfgExtended);

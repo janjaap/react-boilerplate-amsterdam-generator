@@ -54,7 +54,7 @@ LocaleToggle.propTypes = {
 };
 
 const mapStateToProps = createSelector(
-  makeSelectLocale(),
+  makeSelectLocale,
   locale => ({ locale }),
 );
 

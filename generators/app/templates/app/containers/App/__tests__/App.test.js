@@ -78,8 +78,6 @@ describe('containers/App', () => {
 
     expect(queryByTestId('site-header')).not.toBeNull();
     expect(queryByTestId('site-footer')).not.toBeNull();
-    expect(queryByTestId('search-form')).not.toBeNull();
-    expect(queryByTestId('search-foldout')).toHaveStyleRule('display', 'block');
   });
 
   it('should render global styles', () => {

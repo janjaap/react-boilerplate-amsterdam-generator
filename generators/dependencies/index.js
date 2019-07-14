@@ -85,6 +85,7 @@ module.exports = class DependenciesGenerator extends BaseGenerator {
       'jest-localstorage-mock',
       'node-sass',
       'npm-run-all',
+      'redux-saga-test-plan',
       'sass-loader',
     ]);
 
